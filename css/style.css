@@ -1,0 +1,179 @@
+/* === Reset & root === */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #1a1320;
+  color: #f4eef5;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+#app { width: 100vw; height: 100vh; position: relative; }
+
+/* === Screens === */
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+}
+
+.screen-title { font-size: clamp(2rem, 6vw, 4rem); margin-bottom: 1rem; }
+.screen-subtitle { opacity: 0.7; margin-bottom: 2rem; max-width: 32em; text-align: center; }
+
+/* === Buttons === */
+.btn {
+  background: #c25b8c; color: #fff;
+  border: none; padding: 0.75rem 1.5rem;
+  font-size: 1rem; font-weight: 600;
+  border-radius: 6px; cursor: pointer;
+  transition: transform 0.1s, background 0.15s;
+}
+.btn:hover { background: #d36b9c; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { background: #555; cursor: not-allowed; transform: none; }
+.btn-secondary { background: transparent; border: 1px solid #c25b8c; color: #c25b8c; }
+.btn-secondary:hover { background: rgba(194, 91, 140, 0.1); }
+.btn-danger { background: #8c3030; }
+.btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+
+/* === Title screen === */
+.title-screen .screen-title { color: #f7c8dc; text-shadow: 0 2px 12px rgba(194, 91, 140, 0.4); }
+
+/* === Level select === */
+.level-select { padding: 3rem 2rem; justify-content: flex-start; }
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  width: 100%; max-width: 960px;
+  margin-top: 1rem;
+}
+.level-card {
+  background: #2a1f30; border: 1px solid #3d2c45;
+  border-radius: 8px; padding: 1rem;
+  cursor: pointer; transition: border-color 0.15s, transform 0.1s;
+}
+.level-card:hover { border-color: #c25b8c; transform: translateY(-2px); }
+.level-card.locked { opacity: 0.5; cursor: not-allowed; }
+.level-card.completed { border-color: #6cc275; }
+.level-card h3 { margin-bottom: 0.25rem; }
+.level-card .meta { font-size: 0.85rem; opacity: 0.7; }
+.level-card .lock-reason { font-size: 0.8rem; color: #e8a93b; margin-top: 0.5rem; }
+.empty-state { opacity: 0.6; text-align: center; padding: 3rem 1rem; }
+
+/* === Scene (gameplay) === */
+.scene {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  background-color: #2a1f30;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+}
+.scene-sprite {
+  position: absolute; bottom: 35%; left: 50%;
+  transform: translateX(-50%);
+  height: 60%;
+  pointer-events: none;
+}
+.scene-sprite img { height: 100%; }
+.scene-sprite.missing {
+  width: 200px; height: 360px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; opacity: 0.6;
+  bottom: 35%;
+}
+
+.scene-hud {
+  position: absolute; top: 1rem; left: 1rem; right: 1rem;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 1rem; pointer-events: none;
+}
+.scene-hud > * { pointer-events: auto; }
+
+.affection-meter {
+  background: rgba(0, 0, 0, 0.55); padding: 0.5rem 0.75rem;
+  border-radius: 6px; min-width: 200px;
+}
+.affection-meter .label { font-size: 0.85rem; opacity: 0.85; margin-bottom: 0.25rem; }
+.affection-meter .bar { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; }
+.affection-meter .fill { height: 100%; background: linear-gradient(90deg, #c25b8c, #f7c8dc); transition: width 0.3s; }
+.affection-meter .value { font-size: 0.75rem; opacity: 0.7; margin-top: 0.25rem; }
+
+.objective-card {
+  background: rgba(0, 0, 0, 0.55); padding: 0.5rem 0.75rem;
+  border-radius: 6px; max-width: 280px;
+}
+.objective-card .label { font-size: 0.75rem; opacity: 0.7; }
+.objective-card .text { font-size: 0.95rem; font-weight: 600; }
+
+.dialog-box {
+  background: linear-gradient(180deg, rgba(20, 12, 26, 0.92), rgba(20, 12, 26, 0.98));
+  border-top: 1px solid #3d2c45;
+  padding: 1rem 1.5rem;
+  max-height: 35vh; display: flex; flex-direction: column;
+}
+.dialog-log {
+  flex: 1; overflow-y: auto;
+  font-size: 0.95rem; line-height: 1.55;
+  margin-bottom: 0.75rem;
+}
+.dialog-log .msg { margin-bottom: 0.5rem; }
+.dialog-log .msg .who { font-weight: 600; opacity: 0.85; margin-right: 0.5rem; }
+.dialog-log .msg.character .who { color: #f7c8dc; }
+.dialog-log .msg.player .who { color: #a4d9f7; }
+.dialog-log .msg.system { opacity: 0.6; font-style: italic; }
+
+.dialog-input { display: flex; gap: 0.5rem; }
+.dialog-input input {
+  flex: 1; background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #3d2c45; color: #f4eef5;
+  padding: 0.65rem 0.85rem; border-radius: 6px;
+  font-size: 0.95rem; font-family: inherit;
+}
+.dialog-input input:focus { outline: none; border-color: #c25b8c; }
+.dialog-input button { white-space: nowrap; }
+
+.scene-actions {
+  position: absolute; bottom: calc(35vh + 0.5rem); right: 1rem;
+  display: flex; gap: 0.5rem;
+}
+
+/* === Modals === */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem; z-index: 100;
+}
+.modal {
+  background: #2a1f30; border: 1px solid #3d2c45;
+  border-radius: 8px; padding: 1.5rem;
+  max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto;
+}
+.modal h2 { margin-bottom: 0.75rem; }
+.modal p { margin-bottom: 0.75rem; opacity: 0.9; }
+.modal ol { margin: 0.75rem 0 1rem 1.25rem; }
+.modal ol li { margin-bottom: 0.35rem; }
+.modal a { color: #f7c8dc; }
+
+.field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem; }
+.field label { font-size: 0.85rem; opacity: 0.85; }
+.field input, .field select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #3d2c45; color: #f4eef5;
+  padding: 0.55rem 0.7rem; border-radius: 6px;
+  font-size: 0.95rem; font-family: inherit;
+}
+.field input[type=range] { padding: 0; }
+.field .hint { font-size: 0.8rem; opacity: 0.6; }
+.field .error { font-size: 0.85rem; color: #e8a93b; }
+.field .ok { font-size: 0.85rem; color: #6cc275; }
+
+/* === Utility === */
+.muted { opacity: 0.6; }
+.row { display: flex; gap: 0.5rem; align-items: center; }
+.spacer { flex: 1; }
+.small { font-size: 0.85rem; }

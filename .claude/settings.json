@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Bash(ls *)",
+      "Bash(ls)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(curl *)",
+      "Bash(pkill *)",
+      "Bash(kill *)",
+      "Bash(node *)",
+      "Skill(update-config)",
+      "Skill(update-config:*)"
+    ]
+  }
+}
