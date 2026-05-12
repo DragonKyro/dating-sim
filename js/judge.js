@@ -15,16 +15,30 @@ async function loadJudgeTemplate() {
   return judgeTemplateCache;
 }
 
+// Gemini's responseSchema supports a strict OpenAPI 3.0 subset — no union
+// types as arrays. We keep this minimal: the fields the game actually reads.
 const JUDGE_SCHEMA = {
   type: "object",
   properties: {
-    affection_delta: { type: "integer", minimum: -5, maximum: 5 },
+    affection_delta: { type: "integer", minimum: -10, maximum: 10 },
     mood: { type: "string", enum: ["neutral", "happy", "sad", "annoyed", "interested", "flirty"] },
-    objective_signal: { type: ["string", "null"] },
     reasoning: { type: "string" },
   },
   required: ["affection_delta", "mood", "reasoning"],
 };
+
+// How many prior exchanges to show the judge as context. Long enough to
+// detect repetition and topic continuity; short enough to keep the prompt
+// fast and cheap.
+const HISTORY_WINDOW = 8;
+
+function formatHistory(history, character) {
+  if (!history || history.length === 0) return "(this is the first exchange)";
+  const window = history.slice(-HISTORY_WINDOW);
+  return window
+    .map((m) => `${m.role === "user" ? "Player" : character.displayName}: ${m.text}`)
+    .join("\n");
+}
 
 /**
  * Score the most recent exchange.
@@ -35,8 +49,10 @@ const JUDGE_SCHEMA = {
  * @param {string} args.playerText   - The player's last message.
  * @param {string} args.replyText    - The character's last reply.
  * @param {number} args.currentAffection
+ * @param {Array<{role: "user"|"model", text: string}>} [args.history]
+ *   - Prior conversation messages BEFORE the latest exchange.
  */
-export async function judgeExchange({ character, level, playerText, replyText, currentAffection }) {
+export async function judgeExchange({ character, level, playerText, replyText, currentAffection, history = [] }) {
   const state = getState();
   const template = await loadJudgeTemplate();
 
@@ -44,12 +60,21 @@ export async function judgeExchange({ character, level, playerText, replyText, c
     .replaceAll("{{characterName}}", character.displayName)
     .replaceAll("{{personality}}", character.personalitySummary ?? "(see system prompt)")
     .replaceAll("{{objective}}", level?.objective?.label ?? "(no active objective)")
-    .replaceAll("{{currentAffection}}", String(currentAffection));
+    .replaceAll("{{currentAffection}}", String(currentAffection))
+    .replaceAll("{{judgeAddendum}}", level?.judgeAddendum ?? "");
+
+  const historyText = formatHistory(history, character);
 
   const messages = [
     {
       role: "user",
-      text: `Player said: "${playerText}"\n${character.displayName} replied: "${replyText}"\n\nScore this exchange as JSON.`,
+      text:
+        `Recent conversation (most recent last):\n${historyText}\n\n` +
+        `THIS exchange (the one you must score):\n` +
+        `Player: ${playerText}\n` +
+        `${character.displayName}: ${replyText}\n\n` +
+        `Score the latest exchange. Use the history above to spot repetition, ` +
+        `topic continuity, or awkward shifts. Output JSON.`,
     },
   ];
 
@@ -59,13 +84,15 @@ export async function judgeExchange({ character, level, playerText, replyText, c
     system: filled,
     messages,
     temperature: 0.2,
+    // Judge output is a small JSON object (~30-50 tokens). Cap generously
+    // to absorb verbose reasoning, but well below runaway.
+    maxOutputTokens: 128,
     responseSchema: JUDGE_SCHEMA,
   });
 
   try {
     return JSON.parse(raw);
   } catch {
-    // If structured output failed, fall back to neutral.
-    return { affection_delta: 0, mood: "neutral", objective_signal: null, reasoning: "parse-failed" };
+    return { affection_delta: 0, mood: "neutral", reasoning: "(judge returned unparseable output)" };
   }
 }

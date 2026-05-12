@@ -8,8 +8,9 @@
   "objective": {
     "type": "get_number",
     "label": "Get Emma's phone number",
-    "threshold": 40
+    "threshold": 35
   },
+  "judgeAddendum": "Setting note: this is a quick after-class conversation. Emma and the player are classmates who've barely spoken before — they're acquaintances, not strangers, but there's no romantic context yet. Treat \"asking for coffee sometime\" or \"want to grab lunch\" as natural, low-stakes asks that wouldn't be weird if affection is decent. Treat asking for her number as a real ask that requires actual rapport.",
   "prerequisites": {
     "levelsCompleted": [],
     "characterAffection": {},

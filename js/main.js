@@ -15,6 +15,16 @@ import {
 
 const OBJECTIVE_FAIL_PENALTY = 5;
 
+// Token management.
+// CHAT_HISTORY_WINDOW: max messages sent to the character LLM per turn.
+// Conversations are typically <20 turns; 30 messages = 15 turns of context,
+// enough to preserve continuity without unbounded growth as plays drag on.
+// CHAT_MAX_OUTPUT: caps the character's reply length. Prompts say "1-3
+// sentences" — 256 tokens is comfortably above that ceiling, well below
+// runaway. Acts as a defensive ceiling, not a target.
+const CHAT_HISTORY_WINDOW = 30;
+const CHAT_MAX_OUTPUT = 256;
+
 // ============================================================
 // Screen: title
 // ============================================================
@@ -199,11 +209,16 @@ async function renderScene({ level, character }) {
 
     try {
       const live = getState();
-      const history = live.currentConversation.messages.map((m) => ({
-        role: m.role === "user" ? "user" : "model",
-        text: m.text,
-      }));
-      // history already includes the just-appended user message.
+      // Sliding window: send only the last CHAT_HISTORY_WINDOW messages to
+      // bound per-turn input tokens. Already includes the just-appended
+      // user message at the tail.
+      const fullHistory = live.currentConversation.messages;
+      const history = fullHistory
+        .slice(-CHAT_HISTORY_WINDOW)
+        .map((m) => ({
+          role: m.role === "user" ? "user" : "model",
+          text: m.text,
+        }));
 
       const systemPrompt = buildSystemPrompt() + (isObjectiveAttempt
         ? `\n\n[The player is now making their move toward the objective: ${level.objective?.label}. ` +
@@ -219,6 +234,7 @@ async function renderScene({ level, character }) {
         system: systemPrompt,
         messages: history,
         temperature: live.settings.temperature,
+        maxOutputTokens: CHAT_MAX_OUTPUT,
       });
       thinkingNode.remove();
 
@@ -226,17 +242,24 @@ async function renderScene({ level, character }) {
       const success = isObjectiveAttempt && reply.includes("<<OBJECTIVE_MET>>");
       appendMessage("model", cleanReply);
 
-      // Score the exchange.
+      // Score the exchange. Pass history BEFORE this turn so the judge
+      // can detect repetition, topic shifts, and natural continuity.
+      // At this point messages contains [...prior, latest_user, latest_model],
+      // so we slice off the last two to get just the prior context.
+      const priorHistory = live.currentConversation.messages.slice(0, -2);
       let score;
+      let judgeError = null;
       try {
         score = await judgeExchange({
           character, level,
           playerText, replyText: cleanReply,
           currentAffection: getCharacterState(character.id).affection,
+          history: priorHistory,
         });
       } catch (err) {
-        console.warn("judge failed", err);
-        score = { affection_delta: 0, mood: "neutral" };
+        console.error("judge failed", err);
+        judgeError = err.message;
+        score = { affection_delta: 0, mood: "neutral", reasoning: "(scoring failed — see below)" };
       }
 
       if (score.affection_delta) adjustAffection(character.id, score.affection_delta);
@@ -248,6 +271,9 @@ async function renderScene({ level, character }) {
       // Show per-turn feedback so the player can read what worked.
       const totalDelta = (score.affection_delta ?? 0) + (isFailedAttempt ? -OBJECTIVE_FAIL_PENALTY : 0);
       log.appendChild(feedbackMessage(totalDelta, score.reasoning, { isObjectiveFail: isFailedAttempt }));
+      if (judgeError) {
+        log.appendChild(systemMessage(`⚠ Scoring error: ${judgeError}`));
+      }
       log.scrollTop = log.scrollHeight;
 
       if (success) {

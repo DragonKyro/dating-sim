@@ -12,10 +12,11 @@ const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
  * @param {string} opts.system      - System prompt text.
  * @param {Array<{role: "user"|"model", text: string}>} opts.messages - Conversation history.
  * @param {number} [opts.temperature=0.85]
+ * @param {number} [opts.maxOutputTokens] - Cap the response length. Prevents runaway output.
  * @param {object} [opts.responseSchema] - Optional JSON schema for structured output.
  * @returns {Promise<string>} The text of the model's reply.
  */
-export async function chat({ apiKey, model, system, messages, temperature = 0.85, responseSchema }) {
+export async function chat({ apiKey, model, system, messages, temperature = 0.85, maxOutputTokens, responseSchema }) {
   if (!apiKey) throw new Error("missing API key");
   if (!model) throw new Error("missing model");
 
@@ -25,6 +26,9 @@ export async function chat({ apiKey, model, system, messages, temperature = 0.85
     generationConfig: { temperature },
   };
   if (system) body.systemInstruction = { parts: [{ text: system }] };
+  if (typeof maxOutputTokens === "number" && maxOutputTokens > 0) {
+    body.generationConfig.maxOutputTokens = maxOutputTokens;
+  }
   if (responseSchema) {
     body.generationConfig.responseMimeType = "application/json";
     body.generationConfig.responseSchema = responseSchema;

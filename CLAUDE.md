@@ -78,8 +78,13 @@ without updating the matching loader in `js/levels.js` *and* the README.
 `personalitySummary` (used by judge).
 
 **Level JSON:** `id`, `title`, `location?`, `background?`, `characters[]`,
-`intro?`, `objective {type, label, threshold}`, `prerequisites?`,
-`onComplete?`.
+`intro?`, `objective {type, label, threshold}`, `judgeAddendum?`,
+`prerequisites?`, `onComplete?`.
+
+`judgeAddendum` is a free-text string appended to the universal judge prompt
+via the `{{judgeAddendum}}` template var. Use it for scenario-specific
+scoring nuance (what counts as a natural ask here, tonal calibration, etc.)
+without forking the whole judge prompt.
 
 **Prerequisites:** `levelsCompleted[]`, `characterAffection {id: minVal}`,
 `storyFlags[]`. All must be satisfied to unlock.
@@ -100,15 +105,40 @@ without updating the matching loader in `js/levels.js` *and* the README.
    `main.js` — `prompts/objective.md` is a reference copy). Success is
    signaled by the model emitting the literal token `<<OBJECTIVE_MET>>`.
 
+## Token management
+
+We make 2 LLM calls per player turn (character reply + judge score). To keep
+input/output token usage bounded:
+
+- **Character chat history is windowed.** `CHAT_HISTORY_WINDOW` in main.js
+  caps how many messages are sent per turn (default 30 = 15 turns).
+  Conversations are typically <20 turns, so this preserves continuity in
+  realistic plays while bounding worst-case linear growth.
+- **Judge history is windowed.** `HISTORY_WINDOW` in judge.js caps the
+  judge's context to the last 8 prior exchanges. Enough to spot repetition
+  and topic continuity; short enough to keep the scoring call cheap.
+- **Output is capped via `maxOutputTokens`.** Character: 256 (system prompt
+  says "1-3 sentences"; this is a defensive ceiling, not a target). Judge:
+  128 (small JSON only).
+- **Implicit Gemini caching kicks in naturally** once total prefix exceeds
+  ~1024 tokens (the 2.5 Flash minimum). System prompts are ~700-800 tokens
+  alone — below the threshold — but the history accumulation pushes total
+  prefix over the line by turn ~5. No special restructuring required.
+
+If extending: prefer trimming history before extending it. The cost
+multiplier of an extra 5 messages per turn dwarfs prompt-text optimization.
+
 ## Things to watch for
 
 - **CORS:** Gemini's REST API accepts browser requests with the key as a URL
   param. No proxy needed.
 - **Rate limits:** Gemini Flash free tier is ~15 RPM. The game makes 1 model
   call + 1 judge call per turn = 2 RPM per turn. Plenty of headroom for
-  single-player.
-- **Cost:** Free tier covers casual play. If a level chews through a lot of
-  turns, the judge call could be skipped or batched. Not implemented yet.
+  single-player. `llm.js` retries 429s automatically with exponential backoff.
+- **Cost:** Free tier covers casual play. Real concern is the per-day token
+  quota — see token management section above. If a level chews through a
+  lot of turns, the judge call could be skipped on low-effort turns or
+  batched. Not implemented yet.
 - **Sprite asset misses** are non-fatal — `ui.js#spriteFor` falls back to a
   dashed placeholder.
 - **Levels with multiple characters** are not yet supported. `characters[]`
