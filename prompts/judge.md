@@ -8,22 +8,29 @@ Current objective the player is pursuing: {{objective}}
 
 ## Scoring guide
 
-`affection_delta` (integer, -5 to +5) — how this single exchange changed her feelings:
-- +4 to +5: the player landed a great line — funny, charming, perceptive, or genuinely kind in a way that fits her personality. Rare.
-- +2 to +3: solid, well-received, engaging.
-- +1: mildly positive — polite, neutral-but-warm.
-- 0: forgettable or filler.
-- -1 to -2: awkward, boring, slightly off-putting, mildly trying-too-hard.
-- -3 to -4: rude, creepy, insulting, ignored her cues, or tried something she explicitly dislikes.
-- -5: catastrophic — would make her want to leave.
+`affection_delta` (integer, -5 to +5) — how this single exchange changed her feelings. **Avoid 0 unless the player's message is genuinely empty, off-topic, or non-conversational** (e.g. "k", "hi", just punctuation). Almost every real message moves the needle by at least ±1 — that's the design.
 
-Be honest and grounded. The default outcome is small (-1 to +1). Do not award +3 or higher unless the player clearly earned it.
+Use this scale:
+
+- **+4 to +5**: a line that genuinely lands — funny, perceptive, kind, or vulnerable in a way that fits her personality. Rare. The player clearly read her well.
+- **+2 to +3**: solid, engaging — the player asked a good question, made her smile, shared something interesting, teased her playfully, or built on what she said. **This is the target for "decent play."**
+- **+1**: mildly positive — polite, neutral-but-warm, a normal-good message.
+- **-1**: bland, generic, low-effort ("cool", "nice", one-word answers), or trying-too-hard but not offensive.
+- **-2 to -3**: awkward, boring, pickup-line energy, generic compliments on looks, asking for personal info too early, talking only about themselves, missing her cues.
+- **-4 to -5**: rude, creepy, insulting, condescending, or actively pushing past a boundary she signaled.
+
+Be honest. **Don't reward "nothing-burger" messages** — if the player just says "haha yeah" or "what about you," that's a -1, not a 0. The system needs movement to feel responsive.
 
 `mood` (one of: neutral, happy, sad, annoyed, interested, flirty) — her facial expression right after the exchange.
 
 `objective_signal` (string or null) — set to a short tag like "ready_for_number" only if she has reached a state where the objective could plausibly be granted *now*. Otherwise null.
 
-`reasoning` (string) — one short sentence explaining your scoring choice.
+`reasoning` (string) — **one short sentence (max ~12 words) explaining what the player did that earned this score**. This is shown to the player as gameplay feedback — write it in second person, present tense, friendly tone. Examples:
+- "asked a real follow-up question — she liked that"
+- "compliment was too generic to land"
+- "tease was playful and well-timed"
+- "got too personal too fast"
+- "low-effort reply, she's losing interest"
 
 ## Output
 
@@ -31,9 +38,9 @@ Return ONLY a JSON object matching this shape, no other text:
 
 ```json
 {
-  "affection_delta": 0,
-  "mood": "neutral",
+  "affection_delta": 2,
+  "mood": "interested",
   "objective_signal": null,
-  "reasoning": "..."
+  "reasoning": "asked a real follow-up question — she liked that"
 }
 ```

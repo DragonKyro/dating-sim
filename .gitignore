@@ -6,3 +6,7 @@ node_modules/
 *.log
 .env
 .env.local
+
+# Local dev secrets — must NEVER be committed.
+secrets.local.json
+secrets.local.js

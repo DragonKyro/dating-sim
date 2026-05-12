@@ -99,8 +99,13 @@ body {
   border-radius: 6px; min-width: 200px;
 }
 .affection-meter .label { font-size: 0.85rem; opacity: 0.85; margin-bottom: 0.25rem; }
-.affection-meter .bar { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; }
+.affection-meter .bar { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; position: relative; }
 .affection-meter .fill { height: 100%; background: linear-gradient(90deg, #c25b8c, #f7c8dc); transition: width 0.3s; }
+.affection-meter .threshold {
+  position: absolute; top: -2px; bottom: -2px;
+  width: 2px; background: #f7c8dc; opacity: 0.9;
+  box-shadow: 0 0 4px rgba(247, 200, 220, 0.6);
+}
 .affection-meter .value { font-size: 0.75rem; opacity: 0.7; margin-top: 0.25rem; }
 
 .objective-card {
@@ -126,6 +131,18 @@ body {
 .dialog-log .msg.character .who { color: #f7c8dc; }
 .dialog-log .msg.player .who { color: #a4d9f7; }
 .dialog-log .msg.system { opacity: 0.6; font-style: italic; }
+.dialog-log .msg.feedback {
+  font-size: 0.82rem;
+  margin: 0.1rem 0 0.65rem 0.5rem;
+  padding: 0.15rem 0;
+  font-style: italic;
+}
+.dialog-log .msg.feedback .fb-delta { font-weight: 700; font-style: normal; margin-right: 0.4rem; }
+.dialog-log .msg.feedback .fb-reason { opacity: 0.85; }
+.dialog-log .msg.feedback.fb-pos .fb-delta { color: #f7c8dc; }
+.dialog-log .msg.feedback.fb-neg .fb-delta { color: #e8a93b; }
+.dialog-log .msg.feedback.fb-zero { opacity: 0.55; }
+.dialog-log .msg.feedback.fb-zero .fb-delta { color: #aaa; }
 
 .dialog-input { display: flex; gap: 0.5rem; }
 .dialog-input input {

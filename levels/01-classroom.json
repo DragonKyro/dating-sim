@@ -1,0 +1,22 @@
+{
+  "id": "01-classroom",
+  "title": "After Psych 101",
+  "location": "A half-empty university lecture hall, Tuesday morning",
+  "background": "assets/backgrounds/classroom.jpg",
+  "characters": ["emma"],
+  "intro": "Psych 101 just let out. Emma — the girl you've ended up sitting next to three Tuesdays in a row — is taking her time packing her bag. The next class doesn't start for ten minutes. You've made small talk with her before, but nothing that stuck.",
+  "objective": {
+    "type": "get_number",
+    "label": "Get Emma's phone number",
+    "threshold": 40
+  },
+  "prerequisites": {
+    "levelsCompleted": [],
+    "characterAffection": {},
+    "storyFlags": []
+  },
+  "onComplete": {
+    "addFlags": ["got_emma_number"],
+    "addCharacterFlags": { "emma": ["shared_contact"] }
+  }
+}

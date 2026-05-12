@@ -9,7 +9,11 @@
       "Bash(curl *)",
       "Bash(pkill *)",
       "Bash(kill *)",
+      "Bash(taskkill *)",
       "Bash(node *)",
+      "Bash(git *)",
+      "WebSearch",
+      "WebFetch",
       "Skill(update-config)",
       "Skill(update-config:*)"
     ]

@@ -31,11 +31,33 @@ export function showModal(node) {
   return { close };
 }
 
-export function affectionBar(value, label = "Affection") {
+export function affectionBar(value, label = "Affection", threshold = null) {
+  const barChildren = [h("div", { class: "fill", style: { width: `${value}%` } })];
+  if (typeof threshold === "number" && threshold > 0 && threshold < 100) {
+    barChildren.push(h("div", { class: "threshold", style: { left: `${threshold}%` }, title: `Objective threshold: ${threshold}` }));
+  }
+  const valueLine = threshold != null
+    ? `${value} / 100   (need ${threshold})`
+    : `${value} / 100`;
   return h("div", { class: "affection-meter" },
     h("div", { class: "label" }, label),
-    h("div", { class: "bar" }, h("div", { class: "fill", style: { width: `${value}%` } })),
-    h("div", { class: "value" }, `${value} / 100`),
+    h("div", { class: "bar" }, ...barChildren),
+    h("div", { class: "value" }, valueLine),
+  );
+}
+
+/**
+ * Inline feedback line shown after each judge call so the player can read
+ * what they did and how she reacted.
+ */
+export function feedbackMessage(delta, reasoning, { isObjectiveFail = false } = {}) {
+  const sign = delta > 0 ? "+" : "";
+  const icon = delta > 0 ? "❤️" : delta < 0 ? "💔" : "·";
+  const klass = delta > 0 ? "fb-pos" : delta < 0 ? "fb-neg" : "fb-zero";
+  const prefix = isObjectiveFail ? "She deflected. " : "";
+  return h("div", { class: `msg feedback ${klass}` },
+    h("span", { class: "fb-delta" }, `${sign}${delta} ${icon}`),
+    h("span", { class: "fb-reason" }, ` ${prefix}${reasoning ?? ""}`),
   );
 }
 

@@ -10,10 +10,10 @@ import {
 import { openByokSetup, openSettings } from "./settings.js";
 import {
   h, mount, affectionBar, objectiveCard,
-  spriteFor, dialogMessage, systemMessage,
+  spriteFor, dialogMessage, systemMessage, feedbackMessage,
 } from "./ui.js";
 
-const OBJECTIVE_FAIL_PENALTY = 10;
+const OBJECTIVE_FAIL_PENALTY = 5;
 
 // ============================================================
 // Screen: title
@@ -131,7 +131,7 @@ async function renderScene({ level, character }) {
 
   // DOM scaffolding ------------------------------------------------------
   let sprite = spriteFor(character, "neutral");
-  const meter = affectionBar(characterState.affection, `${character.displayName}'s affection`);
+  const meter = affectionBar(characterState.affection, `${character.displayName}'s affection`, level.objective?.threshold ?? null);
   const objective = objectiveCard(level.objective?.label ?? "Hang out");
   const log = h("div", { class: "dialog-log" });
   const input = h("input", { type: "text", placeholder: `Say something to ${character.displayName}…` });
@@ -173,8 +173,13 @@ async function renderScene({ level, character }) {
     const a = getCharacterState(character.id).affection;
     const fill = meter.querySelector(".fill");
     const value = meter.querySelector(".value");
+    const threshold = level.objective?.threshold;
     if (fill) fill.style.width = `${a}%`;
-    if (value) value.textContent = `${a} / 100`;
+    if (value) {
+      value.textContent = (threshold != null)
+        ? `${a} / 100   (need ${threshold})`
+        : `${a} / 100`;
+    }
   }
 
   function setMood(mood) {
@@ -235,9 +240,15 @@ async function renderScene({ level, character }) {
       }
 
       if (score.affection_delta) adjustAffection(character.id, score.affection_delta);
-      if (isObjectiveAttempt && !success) adjustAffection(character.id, -OBJECTIVE_FAIL_PENALTY);
+      const isFailedAttempt = isObjectiveAttempt && !success;
+      if (isFailedAttempt) adjustAffection(character.id, -OBJECTIVE_FAIL_PENALTY);
       refreshMeter();
       setMood(score.mood);
+
+      // Show per-turn feedback so the player can read what worked.
+      const totalDelta = (score.affection_delta ?? 0) + (isFailedAttempt ? -OBJECTIVE_FAIL_PENALTY : 0);
+      log.appendChild(feedbackMessage(totalDelta, score.reasoning, { isObjectiveFail: isFailedAttempt }));
+      log.scrollTop = log.scrollHeight;
 
       if (success) {
         log.appendChild(systemMessage(`✨ Objective achieved! Returning to level select…`));
@@ -283,4 +294,28 @@ async function renderScene({ level, character }) {
 // ============================================================
 // Boot
 // ============================================================
+
+// Optional dev convenience: if a gitignored `secrets.local.json` is sitting
+// next to index.html, auto-load the API key from it so the BYOK modal is
+// skipped during local testing. Production deploys to GitHub Pages won't
+// have this file (it's gitignored), so real players still go through BYOK.
+async function loadDevSecrets() {
+  try {
+    const res = await fetch("secrets.local.json", { cache: "no-cache" });
+    if (!res.ok) return;
+    const secrets = await res.json();
+    if (!secrets || typeof secrets.apiKey !== "string" || !secrets.apiKey) return;
+    const state = getState();
+    if (state.byok.apiKey) return; // user already has a key; don't clobber.
+    updateState((s) => {
+      s.byok.apiKey = secrets.apiKey;
+      if (secrets.model) s.byok.model = secrets.model;
+    });
+    console.warn("[dev] loaded API key from secrets.local.json — this file MUST stay gitignored.");
+  } catch {
+    // File not present is the normal production path. Silent.
+  }
+}
+
+await loadDevSecrets();
 renderTitle();
