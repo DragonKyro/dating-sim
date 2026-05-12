@@ -27,6 +27,12 @@ node_modules, a backend, or bundling is off-limits.
 
 ## File map
 
+**Companion docs (non-code):**
+- [DESIGN.md](DESIGN.md) — brainstormed settings / personalities / objectives. Mechanics-flavored.
+- [STORY.md](STORY.md) — narrative arc, characters, relationships, suggested level placement. Plot-flavored.
+- [OBJECTIVES.md](OBJECTIVES.md) — spec for level-success-condition patterns (ask_and_receive, event, maintain, silent_threshold, comparison + composites). Forward-looking; only `ask_and_receive` is implemented in v1.
+- [CREDITS.md](CREDITS.md) — third-party asset attribution.
+
 ```
 index.html
 css/style.css

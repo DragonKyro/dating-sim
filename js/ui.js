@@ -70,11 +70,15 @@ export function objectiveCard(label) {
 
 /**
  * Try to load a character sprite for the given expression.
- * Falls back to a placeholder box if the image doesn't exist.
+ * Falls back to neutral if the requested expression isn't in the character's
+ * declared list. Falls back to a "missing" placeholder if even neutral is
+ * unavailable.
  */
 export function spriteFor(character, expression) {
-  const src = `${character.spriteFolder}/${expression}.png`;
-  const img = h("img", { src, alt: `${character.displayName} (${expression})` });
+  const expressions = character.expressions ?? ["neutral"];
+  const chosen = expressions.includes(expression) ? expression : "neutral";
+  const src = `${character.spriteFolder}/${chosen}.png`;
+  const img = h("img", { src, alt: `${character.displayName} (${chosen})` });
   const wrap = h("div", { class: "scene-sprite" }, img);
   img.addEventListener("error", () => {
     wrap.classList.add("missing");
