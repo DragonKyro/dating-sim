@@ -4,45 +4,38 @@ Third-party assets used in this project and their licenses.
 
 ## Character sprites
 
-### Emma (`assets/characters/emma/*.png`)
-- **Source:** [Codel Visual Novel Sprite](https://opengameart.org/content/codel-visual-novel-sprite) on OpenGameArt
-- **Artist:** LisadiKaprio
-- **License:** CC-BY 4.0
-- **Notes:** Originals preserved under `_source/`. Best-guess mapping; rename source files to override if a mood looks wrong.
+All five girls now share a single consistent anime art style from one
+artist (Cabbit / KusSv). Male rivals are sourced separately and are
+single-expression placeholders.
 
-### Mira (`assets/characters/mira/*.png`)
-- **Source:** [Kuudere Visual Novel Sprite](https://opengameart.org/content/kuudere-visual-novel-sprite) on OpenGameArt
-- **Artist:** LisadiKaprio
-- **License:** CC-BY 4.0
-- **Notes:** Casual outfit selected. Sad expression uses head-down neutral. Originals preserved under `_source/`.
+### All 5 girls — Cabbit / KusSv VN Characters pack
+- **Source:** [VN Characters by Cabbit](https://opengameart.org/content/vn-characters) on OpenGameArt
+- **Artist:** Cabbit / KusSv
+- **License:** CC0 (public domain, no attribution required — included for good practice)
+- **Assignment:**
+  | Game character | Pack sprite | Expressions |
+  |---|---|---|
+  | Emma | Visiter_A | neutral, happy |
+  | Mira | Student   | neutral, happy, sad, annoyed, flirty |
+  | June | Dasha     | neutral, happy, sad |
+  | Yuki | Anna      | neutral, happy, sad, flirty |
+  | Naia | Visiter_B | neutral, happy |
 
-### June (`assets/characters/june/*.png`)
-- **Source:** [Visual Novel Sprite Pack](https://opengameart.org/content/visual-novel-sprite-pack) on OpenGameArt — Marilyn character
-- **Artist:** Exuin / Emily
-- **License:** CC0 (no attribution required, included anyway)
-- **Notes:** "flirty" reuses smile sprite — Marilyn doesn't have a distinct flirty expression. Replace later if desired.
+Each character's source files are preserved in `assets/characters/<id>/_source/`.
+Game falls back to `neutral.png` when an expression file doesn't exist
+(see `spriteFor` in [js/ui.js](js/ui.js)).
 
-### Yuki (`assets/characters/yuki/*.png`)
-- **Source:** [Visual Novel Sprite Pack](https://opengameart.org/content/visual-novel-sprite-pack) on OpenGameArt — Adriana character
-- **Artist:** Exuin / Emily
-- **License:** CC0
-
-### Naia (`assets/characters/naia/*.png`)
-- **Source:** [Visual Novel Sprite Pack](https://opengameart.org/content/visual-novel-sprite-pack) on OpenGameArt — Joanna character
-- **Artist:** Exuin / Emily
-- **License:** CC0
-
-### Marcus (`assets/characters/marcus/*.png`)
+### Marcus (`assets/characters/marcus/*.png`) — placeholder
 - **Source:** [Male Sprite for Visual Novels](https://opengameart.org/content/male-sprite-for-visual-novels) on OpenGameArt — Mustafa
 - **Artist:** LisadiKaprio
 - **License:** CC-BY 4.0
-- **Notes:** Single neutral expression only for now.
+- **Notes:** Single neutral expression. Different art style than the girls — Marcus is a side character so the mismatch is acceptable. Replace with a Cabbit male equivalent if one becomes available.
 
-### Owen (`assets/characters/owen/*.png`)
+### Owen (`assets/characters/owen/*.png`) — placeholder
 - **Source:** [Visual Novel Sprite Pack](https://opengameart.org/content/visual-novel-sprite-pack) on OpenGameArt — Shinji character
 - **Artist:** Exuin / Emily
 - **License:** CC0
-- **Notes:** Single neutral expression only for now.
+- **Notes:** Single neutral expression placeholder.
 
 ## Backgrounds
 
@@ -50,12 +43,14 @@ Third-party assets used in this project and their licenses.
 - **Source:** [Empty Classroom by Barry Zhou](https://unsplash.com/photos/empty-classroom-khjwIW9HH5s) on Unsplash
 - **License:** [Unsplash License](https://unsplash.com/license)
 
-## Art-style note
+### Library (`assets/backgrounds/library.jpg`)
+- **Source:** [Empty Library/Study Room by Allen Y](https://unsplash.com/photos/an-empty-library-or-study-room-ErkHo-rGq2E) — Wilfrid Laurier University, Waterloo, Canada
+- **License:** [Unsplash License](https://unsplash.com/license)
 
-Two distinct art styles are mixed in this project — both are common anime-VN
-styles but they don't match pixel-perfectly:
-- **LisadiKaprio style** (softer line work, more painterly): Emma, Mira, Marcus.
-- **Exuin/Emily style** (cleaner line work, more flat): June, Yuki, Naia, Owen.
+### Coffee Shop (`assets/backgrounds/coffee-shop.jpg`)
+- **Source:** [Cozy Coffee Shop Interior by Haberdoedas](https://unsplash.com/photos/a-cozy-coffee-shop-interior-with-a-menu-_yJXuiFdsPo) — BOON Specialty Coffee, Almere, Netherlands
+- **License:** [Unsplash License](https://unsplash.com/license)
 
-This is acceptable for a v1; if visual consistency becomes important, replace
-one set with style-matched alternates from another artist.
+### Art Gallery (`assets/backgrounds/gallery.jpg`)
+- **Source:** [Modern Art Gallery Hallway by Declan Sun](https://unsplash.com/photos/modern-art-gallery-hallway-with-minimalist-white-walls-_42kwMUmZw0) — Shanghai
+- **License:** [Unsplash License](https://unsplash.com/license)
