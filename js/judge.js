@@ -84,15 +84,36 @@ export async function judgeExchange({ character, level, playerText, replyText, c
     system: filled,
     messages,
     temperature: 0.2,
-    // Judge output is a small JSON object (~30-50 tokens). Cap generously
-    // to absorb verbose reasoning, but well below runaway.
-    maxOutputTokens: 128,
+    // Judge output is a small JSON object. 128 was too tight — when the
+    // model's `reasoning` runs long the closing brace gets truncated and
+    // JSON.parse fails. 256 leaves comfortable headroom.
+    maxOutputTokens: 256,
     responseSchema: JUDGE_SCHEMA,
   });
 
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return { affection_delta: 0, mood: "neutral", reasoning: "(judge returned unparseable output)" };
+  const parsed = tryParseJudgeJSON(raw);
+  if (parsed) return parsed;
+  console.warn("[judge] unparseable output:", raw);
+  return { affection_delta: 0, mood: "neutral", reasoning: "(judge returned unparseable output)" };
+}
+
+// Gemini *should* honor responseMimeType=application/json, but occasionally
+// wraps the JSON in ```json ... ``` fences or emits trailing prose. Try the
+// happy path first, then fall back to extracting the first {...} block.
+function tryParseJudgeJSON(raw) {
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  try { return JSON.parse(trimmed); } catch {}
+  // Strip a single ```json ... ``` (or bare ``` ... ```) fence if present.
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced) {
+    try { return JSON.parse(fenced[1]); } catch {}
   }
+  // Last resort: grab from the first `{` to the matching last `}`.
+  const first = trimmed.indexOf("{");
+  const last = trimmed.lastIndexOf("}");
+  if (first >= 0 && last > first) {
+    try { return JSON.parse(trimmed.slice(first, last + 1)); } catch {}
+  }
+  return null;
 }
