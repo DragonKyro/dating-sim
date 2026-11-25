@@ -1,100 +1,97 @@
 # Levels
 
-One JSON file per level, plus a registry file.
+One JSON file per scene, `index.json` (ordered ids) and `chapters.json`
+(chapter titles/dates shown on the map). One level = one conversation with
+one character, one objective, a turn budget and an in-world deadline.
 
 ## Adding a level
 
-1. Create `levels/<id>.json` (see schema below).
-2. Make sure every character listed in `characters` is registered (see
-   `characters/README.md`).
-3. Drop the background image into `assets/backgrounds/`.
-4. Add `"<id>"` to `levels/index.json` so the level select screen picks it up.
+1. `levels/<id>.json` (schema below); id convention `NN-slug`.
+2. Add the id to `index.json`.
+3. `node tools/validate.mjs` (schema, cross-references, and a fairness check
+   on threshold vs. turns).
+4. `node tools/playtest.mjs <id>` and read `playtests/<id>-*.md`. A good
+   player should usually win; a careless one should lose.
 
 ## Schema
 
 ```json
 {
-  "id": "01-coffee-shop",
-  "title": "Latte at Dawn",
-  "location": "A quiet downtown coffee shop on a rainy morning",
-  "background": "assets/backgrounds/coffee-shop.jpg",
-  "characters": ["aria"],
-  "intro": "You spot her by the window, working through a thick paperback. The barista just called your name.",
-  "objective": {
-    "type": "get_number",
-    "label": "Get her phone number",
-    "threshold": 70
-  },
-  "prerequisites": {
-    "levelsCompleted": [],
-    "characterAffection": {},
-    "storyFlags": []
-  },
-  "onComplete": {
-    "addFlags": ["got_aria_number"],
-    "addCharacterFlags": { "aria": ["shared_contact"] }
-  }
+  "id": "05-four-am",
+  "chapter": 2,
+  "title": "Four A.M.",
+  "characters": ["rosie"],
+  "scene": { "id": "bakery", "time": "night", "weather": "clear" },
+  "outfit": "work",
+  "when": "Wednesday, August 6 · 4:05 a.m.",
+  "location": "Amaral's Bakery, Front Street, before opening",
+  "card": "One-line teaser for the map card.",
+  "flavor": [ { "from": "Low Tide FM, 88.1", "text": "…", "if": ["knows_lyon"] }, { "from": "…", "text": "…" } ],
+  "intro": ["Narration paragraph.", "Another."],
+  "situation": "PRIVATE scene brief for the character and judge: what's happening, what she's doing and feeling, what's in the room to talk about.",
+  "situationIf": [ { "if": ["met_celeste"], "text": "Extra context when the flag is set." } ],
+  "opening": "*Action.* Her authored first line.",
+  "startInterest": 30,
+  "maxTurns": 12,
+  "exit": "the first fishermen start banging on the door at six",
+  "walkout": "what she does if interest hits 0",
+  "objective": { "type": "ask", "label": "Ask Rosie on a real date", "move": "…", "threshold": 62, "maxAttempts": 3, "success": "…", "refuse": "…" },
+  "secrets": [ { "id": "lyon", "label": "…", "trigger": "…", "minInterest": 48, "reveal": "…", "journal": "…", "flag": "knows_lyon", "memory": "…" } ],
+  "tips": ["Shown in the briefing."],
+  "judgeNotes": "Scene-specific scoring nuance.",
+  "prerequisites": { "levels": ["01-ferry"], "flags": [], "affection": { "rosie": 20 } },
+  "exclusiveGroup": "storm",
+  "onComplete": { "flags": ["rosie_date"], "affection": { "rosie": 14 }, "memory": "…", "ending": "rosie-together" },
+  "onFail": { "flags": [], "memory": "…", "ending": "rosie-bittersweet" },
+  "outro": { "win": "Narration after a win.", "lose": "Narration after a loss." }
 }
 ```
 
-| Field | Required | Notes |
+### Scene
+`scene.id` must be registered in `js/art/scenes.js` with that `time` (and
+`weather`, if it has variants). `outfit` picks a named alternate from the
+character's `look.outfits`.
+
+### Objectives
+| type | wins when | needs |
 |---|---|---|
-| `id` | ✓ | URL-safe; must match filename. Convention: `NN-slug`. |
-| `title` | ✓ | Shown on the level card. |
-| `location` |   | Short setting description — substituted into prompts as `{{location}}`. |
-| `background` |   | Image path (relative to project root). Omit for solid color. |
-| `characters` | ✓ | Array of character ids. v1 uses the first one as the speaking partner. |
-| `intro` |   | One-line scene description shown before the conversation starts. |
-| `objective` | ✓ | `{ type, label, threshold }`. Threshold is the affection needed to win. |
-| `judgeAddendum` |   | Free-text appended to the universal judge prompt for this level only. See below. |
-| `prerequisites` |   | What state is required to unlock the level (see below). |
-| `onComplete` |   | State changes to apply when the level is won (see below). |
+| `reach` | interest ≥ `threshold` | `threshold`, `success` |
+| `ask` | the player makes the `move` while interest is high enough: a smooth ask works from `threshold − 6`, an okay one from `threshold − 2`, a clumsy one needs `threshold + 10`, an inappropriate one never works | `move`, `threshold`, `success`, `refuse`, `maxAttempts` (pushy asks before she's done; default 3) |
+| `endure` | interest stays ≥ `floor` for `turns` exchanges (`maxTurns` is ignored) | `turns`, `floor`, `success`, `collapse` |
 
-### `prerequisites`
-- `levelsCompleted: string[]` — these levels must already be completed.
-- `characterAffection: { [charId]: number }` — each listed character must be
-  at or above this affection.
-- `storyFlags: string[]` — every listed global flag must be set.
+`success`, `refuse` and `collapse` are **director's notes**: instructions to
+the character for that moment, in her voice ("Say yes — loudly, then try to
+play it cool and fail…"). The rules decide the outcome; the note makes her
+words match it. A refused ask costs 3 interest. It only counts toward
+`maxAttempts` if it was pushy (the judge scored it ≤ 0, or it was clumsy or
+inappropriate); a sincere but early ask just gets a touched "not yet".
 
-### `onComplete`
-- `addFlags: string[]` — add to global `storyFlags`.
-- `addCharacterFlags: { [charId]: string[] }` — add to a character's `flags`.
+Every level also loses if interest hits 0 (`walkout`) or the turns run out
+(`exit` is the deadline, used in prompts and the HUD: "before {exit}").
 
-### `judgeAddendum`
-The judge prompt (`prompts/judge.md`) is universal: it knows how to score
-exchanges, detect repetition, reward continuity, and penalize creepy asks.
-But it doesn't know your specific scenario.
+### Secrets
+Guarded topics. The judge tags a message with the secret's id when it
+genuinely probes the `trigger`; if interest ≥ `minInterest` she tells them
+(`reveal` is the director's note), otherwise she deflects. A revealed secret
+sets `flag`, adds `memory` to her memories and `journal` to the player's
+journal — even if the scene is lost.
 
-`judgeAddendum` is a free-text string that gets injected into the judge
-prompt at runtime via the `{{judgeAddendum}}` template variable. Use it to
-tell the judge about anything scenario-specific that should affect scoring:
+### Conditions
+`flavor` and `situationIf` entries can have `if` (all flags set) and `ifNot`
+(none set). The first matching flavor card is shown; keep an unconditional
+one last. Flags come from `onComplete.flags`, `onFail.flags` and secrets.
 
-- The level's tone and stakes (after-class chat vs. wedding reception vs. bar)
-- What "asking out" naturally looks like in this scene
-- Anything the player can reasonably reference (e.g. "they share a class")
-- Any actions/topics that would be especially weird or especially welcome here
+### Progression
+- `prerequisites.levels` / `.flags` / `.affection` must all be met.
+- `exclusiveGroup`: completing one level of the group locks the others.
+- `startInterest` gets a bond bonus of up to +10 (`affection / 8`).
+- `onComplete.affection[char]` is added on a win, plus 1 per 5 points of
+  interest above the threshold. `onFail` defaults to −2.
+- `ending` ids look like `<character>-together` / `<character>-bittersweet`.
 
-Example (from `levels/01-classroom.json`):
-> "Setting note: this is a quick after-class conversation. They're acquaintances, not strangers. Treat 'asking for coffee sometime' as a natural ask if affection is decent. Treat asking for her number as a real ask requiring actual rapport."
-
-Keep it short — 2–3 sentences. The base judge handles 90% of the work; the
-addendum is for the last 10% of scenario nuance.
-
-## `levels/index.json`
-
-A flat ordered array of level ids. Order determines display order on the
-level select screen:
-
-```json
-["01-coffee-shop", "02-library", "03-bookstore-followup"]
-```
-
-## Tips
-
-- Use the threshold to control difficulty: 60 is gentle, 75 is standard, 85+
-  is a deliberate challenge.
-- For multi-step storylines, encode the dependency in `prerequisites` rather
-  than baking it into prompts — keeps prompts reusable.
-- The objective `label` is shown to the player AND embedded in the judge +
-  objective-attempt prompts, so phrase it clearly: *"Get her phone number"*
-  beats *"obtain contact info"*.
+### Writing tips
+- Give the `situation` two or three concrete things she can be asked about.
+- Write the deflection (`refuse`) as carefully as the yes.
+- Put secrets' `minInterest` below the objective threshold so players can
+  find them before winning.
+- Read `STORY.md` for tone. Wants, not wounds.

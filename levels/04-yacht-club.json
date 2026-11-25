@@ -1,0 +1,90 @@
+{
+  "id": "04-yacht-club",
+  "chapter": 1,
+  "title": "The Commodore's Ball",
+  "characters": [
+    "celeste"
+  ],
+  "scene": {
+    "id": "yachtclub",
+    "time": "night"
+  },
+  "when": "Saturday, August 2 · 9:15 p.m.",
+  "location": "The terrace of the Saltwick Yacht Club",
+  "card": "You're here to deliver pastries. She's here to hide from her own party.",
+  "flavor": [
+    {
+      "from": "Text from Rosie",
+      "text": "EMERGENCY. Yacht club ordered 3 trays of natas for the Commodore's Ball and my delivery guy has \"the gout.\" You have arms. 8:45, back door. Do not eat any. (Eat one.)"
+    }
+  ],
+  "intro": [
+    "You delivered three trays of custard tarts to a kitchen full of panicking caterers. On the way out you took a wrong door.",
+    "The terrace is strung with lights. Inside, a band is murdering Sinatra. Out here, a woman in a striped top is sitting on the balustrade with her shoes off and a bottle of champagne she very clearly did not pay for."
+  ],
+  "situation": "The Commodore's Ball at the Saltwick Yacht Club. You escaped the party twenty minutes ago and are sitting on the terrace balustrade with your shoes off and a stolen bottle of champagne. This person is not a member — they're holding an empty pastry tray and wearing the wrong clothes, which makes them the most interesting person here. You're bored, a little drunk, and in the mood to test someone. Your brother Hugo will come looking for you soon. Things they could talk about: the party, the champagne, the band, the pastries (Rosie's), the yacht club people, the harbor, why you're out here.",
+  "situationIf": [
+    {
+      "if": [
+        "met_rosie"
+      ],
+      "text": "They're delivering for Amaral's Bakery — Rosie Amaral's. You and Rosie were inseparable every summer as kids. You haven't really spoken in years. If Rosie comes up, be breezy about it — slightly too breezy."
+    }
+  ],
+  "opening": "*She doesn't get off the balustrade.* You're either staff or a burglar, and you're holding a tray, so — staff. Are you here to take me back inside? Because I'll bite.",
+  "startInterest": 22,
+  "maxTurns": 12,
+  "exit": "her brother Hugo comes out to drag her back to the party",
+  "walkout": "you hop off the balustrade, collect your shoes, and go back inside to the party, which says a lot",
+  "objective": {
+    "type": "ask",
+    "label": "Get Celeste to ditch the party with you",
+    "move": "the player suggests or asks that they leave the party together — a walk, getting out of here, going somewhere else",
+    "threshold": 52,
+    "maxAttempts": 3,
+    "success": "Grab the bottle and your shoes. Tell them: back gate, don't look guilty. You're delighted and pretending not to be.",
+    "refuse": "Laugh at them — 'that's very forward for someone holding a tray' — and make them earn it. Leave the game open."
+  },
+  "secrets": [
+    {
+      "id": "highwater",
+      "label": "why she's hiding out here",
+      "trigger": "the player asks why she's out here alone, about her family, or about her house",
+      "minInterest": 48,
+      "reveal": "This is the last Commodore's Ball you'll attend as a Whitlock of Highwater. Your family is selling the house at the end of summer. You haven't told anyone. Say it like a joke and then look at the harbor for a second too long.",
+      "journal": "Her family is selling Highwater, their house on the bluff, at the end of summer. She hasn't told anyone.",
+      "flag": "knows_highwater",
+      "memory": "You told them, as a joke that wasn't, that your family is selling Highwater."
+    }
+  ],
+  "tips": [
+    "Celeste spars. Hold your own, and don't fold when she pushes.",
+    "She's bored by money and flattery. Surprise her.",
+    "She's hiding from something. Notice it, but don't pry too early."
+  ],
+  "judgeNotes": "Celeste rewards wit and nerve: volleying back a tease, calling her bluff, being unimpressed by the yacht club = +4 to +7. Compliments on her looks, flattery, nervous apologizing, or being impressed by her wealth = -3 to -5. Pity is the worst thing you can offer her.",
+  "prerequisites": {
+    "levels": [
+      "01-ferry"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "met_celeste"
+    ],
+    "affection": {
+      "celeste": 12
+    },
+    "memory": "They crashed the Commodore's Ball with a pastry tray, and you left the party together through the back gate."
+  },
+  "onFail": {
+    "flags": [
+      "met_celeste"
+    ],
+    "memory": "They crashed the Commodore's Ball with a pastry tray. You didn't leave with them."
+  },
+  "outro": {
+    "win": "You walk the harbor road barefoot at midnight, passing a stolen bottle of champagne back and forth, while the band murders Sinatra behind you.",
+    "lose": "Hugo Whitlock arrives, apologizes to you for his sister, and steers her back inside. She looks back once."
+  }
+}

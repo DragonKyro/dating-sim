@@ -1,0 +1,121 @@
+/* Animation vocabulary for the SVG art (js/art/*). Scenes and characters only
+   attach these class names; all motion lives here so it can be disabled in
+   one place (Settings → Reduce motion, or the OS preference). */
+
+.scene-art, .char-art { display: block; width: 100%; height: 100%; }
+/* Only classes that pivot around their own center get fill-box: applying it
+   globally would move the origin of every transform="translate() scale()". */
+.a-flap, .a-flicker, .a-spin, .a-sway, .a-bob, .a-bob-slow, .a-rattle,
+.char-art .c-body, .char-art .c-sway, .char-art .c-head { transform-box: fill-box; }
+
+/* --- sky & weather ----------------------------------------------------- */
+@keyframes a-drift { from { transform: translateX(-1800px); } to { transform: translateX(1800px); } }
+.a-drift { animation: a-drift 200s linear infinite; }
+
+@keyframes a-glide {
+  0% { transform: translate(-120px, 0); }
+  50% { transform: translate(800px, -40px); }
+  100% { transform: translate(1720px, 10px); }
+}
+.a-glide { animation: a-glide 50s linear infinite; }
+@keyframes a-flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.35); } }
+.a-flap { animation: a-flap 0.7s ease-in-out infinite; transform-origin: center; }
+
+@keyframes a-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+.a-twinkle { animation: a-twinkle 4s ease-in-out infinite; }
+@keyframes a-twinkle-soft { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+.a-twinkle-soft { animation: a-twinkle-soft 3.2s ease-in-out infinite; }
+
+@keyframes a-pulse { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+.a-pulse { animation: a-pulse 6s ease-in-out infinite; }
+
+@keyframes a-wave { 0%, 100% { transform: translateX(-10px); opacity: 0.35; } 50% { transform: translateX(12px); opacity: 1; } }
+.a-wave { animation: a-wave 5s ease-in-out infinite; }
+
+@keyframes a-rain { from { transform: translateY(0); } to { transform: translateY(900px); } }
+.a-rain-far { animation: a-rain 1.1s linear infinite; }
+.a-rain-near { animation: a-rain 0.65s linear infinite; }
+
+@keyframes a-drip { 0% { transform: translateY(-20px); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(120px); opacity: 0; } }
+.a-drip { animation: a-drip 5s ease-in infinite; }
+
+@keyframes a-fog { 0%, 100% { transform: translateX(-160px); } 50% { transform: translateX(160px); } }
+.a-fog { animation: a-fog 70s ease-in-out infinite; }
+
+@keyframes a-lightning {
+  0%, 90% { opacity: 0; } 91% { opacity: 0.55; } 92% { opacity: 0.05; } 93.5% { opacity: 0.7; } 96% { opacity: 0; } 100% { opacity: 0; }
+}
+.a-lightning { opacity: 0; animation: a-lightning 11s linear infinite; pointer-events: none; }
+
+/* --- light & life ------------------------------------------------------ */
+@keyframes a-mote {
+  0% { transform: translate(0, 0); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translate(30px, -90px); opacity: 0; }
+}
+.a-mote { animation: a-mote 12s ease-in-out infinite; }
+@keyframes a-firefly { 0%, 100% { transform: translate(0, 0); opacity: 0.1; } 50% { transform: translate(18px, -22px); opacity: 1; } }
+.a-firefly { animation: a-firefly 7s ease-in-out infinite; }
+
+@keyframes a-flicker {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  20% { opacity: 1; transform: scale(1.04); }
+  40% { opacity: 0.7; transform: scale(0.97); }
+  60% { opacity: 0.95; transform: scale(1.02); }
+  80% { opacity: 0.8; }
+}
+.a-flicker { animation: a-flicker 1.6s ease-in-out infinite; transform-origin: center bottom; }
+
+@keyframes a-spin { to { transform: rotate(360deg); } }
+.a-spin { animation: a-spin 1.8s linear infinite; transform-origin: center; }
+
+@keyframes a-sweep { from { transform: rotate(-40deg); } to { transform: rotate(40deg); } }
+.a-sweep { animation: a-sweep 6s ease-in-out infinite alternate; }
+
+@keyframes a-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(6px) rotate(0.6deg); } }
+.a-bob { animation: a-bob 5s ease-in-out infinite; }
+.a-bob-slow { animation: a-bob 8s ease-in-out infinite; }
+
+@keyframes a-sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
+.a-sway { animation: a-sway 4s ease-in-out infinite; transform-origin: center top; }
+
+@keyframes a-rise {
+  0% { transform: translate(0, 0); opacity: 0; }
+  8% { opacity: 1; }
+  85% { opacity: 0.9; }
+  100% { transform: translate(40px, -820px); opacity: 0; }
+}
+.a-rise { animation: a-rise 26s linear infinite; }
+
+@keyframes a-blink-led { 0%, 60%, 100% { opacity: 1; } 70%, 90% { opacity: 0.15; } }
+.a-led { animation: a-blink-led 2.4s steps(1) infinite; }
+
+@keyframes a-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px) rotate(-0.4deg); } 75% { transform: translateX(3px) rotate(0.4deg); } }
+.a-rattle { animation: a-shake 0.5s ease-in-out infinite; }
+
+/* --- characters ------------------------------------------------------- */
+@keyframes c-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.006, 1.012); } }
+.char-art .c-body { animation: c-breathe 4.2s ease-in-out infinite; transform-origin: center bottom; }
+@keyframes c-head-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+.char-art .c-head-idle { animation: c-head-idle 4.2s ease-in-out infinite; }
+@keyframes c-hair-sway { 0%, 100% { transform: rotate(-0.7deg); } 50% { transform: rotate(0.7deg); } }
+.char-art .c-sway { animation: c-hair-sway 5.5s ease-in-out infinite; transform-origin: center top; }
+
+.char-art .c-head { transition: transform 0.45s cubic-bezier(.3,1.4,.5,1); transform-origin: 50% 85%; }
+
+@keyframes c-hop { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-14px); } 65% { transform: translateY(2px); } }
+@keyframes c-jolt { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-20px) scale(1.01); } }
+@keyframes c-recoil { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 45% { transform: translateX(6px); } 70% { transform: translateX(-3px); } }
+@keyframes c-droop { 0% { transform: translateY(0); } 100% { transform: translateY(6px); } }
+@keyframes c-jitter { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, 1px); } 50% { transform: translate(2px, -1px); } 75% { transform: translate(-1px, -1px); } }
+.char-art.react-hop .c-react { animation: c-hop 0.55s ease-out; }
+.char-art.react-jolt .c-react { animation: c-jolt 0.45s ease-out; }
+.char-art.react-recoil .c-react { animation: c-recoil 0.5s ease-out; }
+.char-art.react-droop .c-react { animation: c-droop 0.8s ease-out forwards; }
+.char-art.react-jitter .c-react { animation: c-jitter 0.35s linear 2; }
+
+/* --- reduce motion ---------------------------------------------------- */
+.reduce-motion .scene-art *, .reduce-motion .char-art *, .reduce-motion .char-art { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .scene-art *, .char-art *, .char-art { animation: none !important; transition: none !important; }
+}

@@ -1,0 +1,90 @@
+{
+  "id": "03-tide-pools",
+  "chapter": 1,
+  "title": "Low Tide, 5:40 A.M.",
+  "characters": [
+    "tamsin"
+  ],
+  "scene": {
+    "id": "shore",
+    "time": "dawn"
+  },
+  "when": "Wednesday, July 30 · 5:40 a.m.",
+  "location": "The tide pools below the east headland",
+  "card": "The best free show on the island. You just stepped on her transect line.",
+  "flavor": [
+    {
+      "from": "A note from Bea, on the boot rack",
+      "text": "The tide pools at dawn are the best free show on Saltwick. Wear the boots by the door. NOT the green ones. The green ones are Teodoro's. — B."
+    }
+  ],
+  "intro": [
+    "The sun is coming up pink over the east ledges. The rocks are slick, the pools are full of tiny furious crabs, and it is gorgeous.",
+    "You hear a sharp British \"Oi.\" A woman in a yellow slicker, binoculars on her chest, is glaring at your boot — which is standing on a long measuring tape stretched across the rocks."
+  ],
+  "situation": "Dawn, low tide. You're running your daily grey seal count from the rocks with binoculars and a waterproof notebook; you've got a measuring transect laid across the pools for an intertidal survey. This person just stepped on your transect line and spooked two seals off the near ledge. You have about twenty minutes before the tide turns and you have to move to the next count site. You're irritated but not cruel. Things they could ask about: the seals (214 on the ledges, grey seals), the survey, the binoculars, the notebook, the tide, where you're from (Plymouth, UK).",
+  "situationIf": [
+    {
+      "if": [
+        "met_noor"
+      ],
+      "text": "If they mention Noor or the record shop: you rent the flat above Second Spin. Noor keeps very strange hours."
+    }
+  ],
+  "opening": "Oi — boot. You're standing on my transect. *She lowers the binoculars.* And you've just sent Gerald into the sea, so that's twenty minutes of data gone. Morning.",
+  "startInterest": 18,
+  "maxTurns": 12,
+  "exit": "the tide turns and she has to move to the next site",
+  "walkout": "you pick up the transect, mutter \"right,\" and stalk off across the rocks",
+  "objective": {
+    "type": "ask",
+    "label": "Talk your way onto Tamsin's survey boat",
+    "move": "the player asks if they can come along on her survey boat, or offers concretely to help with the seal survey",
+    "threshold": 50,
+    "maxAttempts": 3,
+    "success": "Grudgingly agree: Thursday, 6 a.m., at the harbor. They bring their own coffee. If they get seasick they're swimming back. You're secretly a bit pleased.",
+    "refuse": "Tell them flatly the boat is for people who are useful, and you haven't seen evidence. Not mean — just a fact."
+  },
+  "secrets": [
+    {
+      "id": "names",
+      "label": "what's in her notebook",
+      "trigger": "the player asks about the notebook, what she writes down, or whether the seals have names",
+      "minInterest": 40,
+      "reveal": "You've named all 214 of them. Gerald is the big bull. There's a pup called Biscuit you're unprofessionally attached to. Admit it like a confession of a crime.",
+      "journal": "She has named all 214 seals. Gerald is the big bull. Biscuit is a pup she's unprofessionally attached to.",
+      "flag": "knows_seal_names",
+      "memory": "You admitted to them that you've named all 214 seals, Biscuit included."
+    }
+  ],
+  "tips": [
+    "Tamsin respects useful people. Apologize, then make yourself useful.",
+    "Real questions about the work go a long way. Whining about the cold does not.",
+    "She's funnier than she looks. Dry humor lands."
+  ],
+  "judgeNotes": "Tamsin starts irritated. A quick genuine apology plus moving off the line is +4. Curiosity about the seals or the survey method is +3 to +6. Asking if she swims with the seals, complaining about the cold or the hour, or flirting before you've been useful is -3 or worse. Self-deprecating humor lands well.",
+  "prerequisites": {
+    "levels": [
+      "01-ferry"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "met_tamsin"
+    ],
+    "affection": {
+      "tamsin": 12
+    },
+    "memory": "They stepped on your transect at dawn and scared Gerald off the ledge. Then they talked their way onto the survey boat."
+  },
+  "onFail": {
+    "flags": [
+      "met_tamsin"
+    ],
+    "memory": "They stepped on your transect at dawn and scared Gerald off the ledge."
+  },
+  "outro": {
+    "win": "Tamsin writes something in her notebook. You're fairly sure it's your name, under the heading \"VOLUNTEER (PROVISIONAL).\"",
+    "lose": "Tamsin moves to the next site. Gerald hauls himself back onto the ledge and looks at you with enormous disappointment."
+  }
+}

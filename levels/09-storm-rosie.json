@@ -1,0 +1,66 @@
+{
+  "id": "09-storm-rosie",
+  "chapter": 3,
+  "title": "Blackout Bread",
+  "characters": ["rosie"],
+  "scene": { "id": "bakery", "time": "night", "weather": "blackout" },
+  "when": "Sunday, August 24 · 10:40 p.m. — Tropical Storm Imogen",
+  "location": "Amaral's Bakery, power out, gas ovens and candles",
+  "card": "The shelter needs two hundred rolls by morning. Rosie is fine. Rosie is FINE.",
+  "exclusiveGroup": "storm",
+  "flavor": [
+    { "from": "Text from Rosie, 9:52 p.m.", "text": "shelter at the school needs 200 rolls by morning. power's out. mom's stuck on the mainland. Vó says don't let the ovens go cold. I am FINE. (are you busy)" }
+  ],
+  "intro": [
+    "Imogen came ashore at dusk. The ferries are cancelled, the power's out across the island, and the wind sounds like it's trying to get into every house at once.",
+    "Amaral's is lit by candles and the orange mouths of the gas ovens. Rosie is shaping rolls at a speed that looks less like baking and more like a fight."
+  ],
+  "situation": "The night of Tropical Storm Imogen. Power's out across Saltwick; the bakery's gas ovens still work, so you're baking 200 rolls for the storm shelter at the school by dawn, alone — your mom is stuck on the mainland. Candles everywhere. Vó called from her house and said, 'Don't let the ovens go cold. The ovens are you now,' and something in you cracked. You're exhausted and scared and holding it together with jokes, badly. You texted this person and they came through the storm. You don't need romance right now; you need someone steady who'll help, keep you laughing, and notice when you're not okay. Things they could do or ask about: help shape or carry rolls, the storm, the shelter, Vó's phone call, how you're actually doing.",
+  "situationIf": [
+    { "if": ["knows_lyon"], "text": "They know about the Lyon acceptance letter. It's still on the fridge. Tonight, every time you look at it, Vó's words land harder." },
+    { "if": ["rosie_date"], "text": "You went to the Night Market together. It was the best night you've had in a year." }
+  ],
+  "opening": "*She doesn't look up; her hands keep moving.* You came. Through that. You're insane. *She shoves a tray at you.* Okay, insane person — rolls. Like this. Fold, turn, fold. We have — *she glances at the clock* — a hundred and sixty to go.",
+  "startInterest": 52,
+  "exit": "dawn comes and the last tray is out",
+  "walkout": "you tell them to go home, you've got this, and turn your back until they do",
+  "objective": {
+    "type": "endure",
+    "label": "Keep Rosie going through the night",
+    "turns": 10,
+    "floor": 38,
+    "success": "The last tray comes out as the sky goes gray. You laugh, and then you cry for about four seconds, and then you kiss them — flour, candle wax, all of it. Then, quietly, tell them you're going to tell your family something, and you're going to do it because of tonight.",
+    "collapse": "You've hit the wall. Tell them you need to do this alone and ask them to go, in a voice that cracks."
+  },
+  "secrets": [
+    {
+      "id": "ovens",
+      "label": "what Vó said on the phone",
+      "trigger": "the player gently asks how she's really doing, what Vó said, or why she's so wound up tonight",
+      "minInterest": 52,
+      "reveal": "Vó said, 'The ovens are you now.' You love her more than anyone in the world, and you don't want to be an oven. Say it and then laugh at how stupid it sounds, even though it isn't.",
+      "journal": "Vó told her on the phone, \"The ovens are you now.\" Rosie loves her more than anyone, and doesn't want to be an oven.",
+      "flag": "rosie_truth",
+      "memory": "In the storm, you told them what Vó said about the ovens, and that you don't want to be one."
+    }
+  ],
+  "tips": [
+    "This isn't the night for flirting. It's the night for being steady.",
+    "Help with the work. Keep her laughing. Notice when she isn't.",
+    "Her interest needs to stay above the line until dawn."
+  ],
+  "judgeNotes": "This is a pressure scene. Practical help (+3 to +5), keeping her laughing (+4 to +6), and checking on her gently (+4 to +6) all work. Making it about yourself, romantic moves, telling her to calm down, or anything that adds pressure: -4 to -6. Leaving her alone with the work (e.g. 'I'll watch') is -3.",
+  "prerequisites": { "levels": ["05-four-am"] },
+  "onComplete": {
+    "flags": ["storm_rosie", "rosie_going"],
+    "affection": { "rosie": 18 },
+    "memory": "They spent the storm baking with you. At dawn you kissed them, and you decided to tell your family about Lyon."
+  },
+  "onFail": {
+    "memory": "They came through the storm to help. You sent them home."
+  },
+  "outro": {
+    "win": "At seven, the two of you carry two hundred rolls into the school gym. Someone starts clapping. Rosie pretends she isn't holding your hand.",
+    "lose": "You walk home through the dying storm. Behind you, the bakery windows glow orange all night."
+  }
+}

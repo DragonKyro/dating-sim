@@ -1,0 +1,26 @@
+{
+  "id": "noor",
+  "displayName": "Noor",
+  "fullName": "Noor Haddad",
+  "age": 25,
+  "role": "Runs Second Spin, records & radio repair",
+  "tagline": "Says one exact thing instead of five approximate ones.",
+  "persona": "prompts/system/noor.md",
+  "color": "#3aa39b",
+  "judge": {
+    "summary": "Noor, 25, former city mixing engineer who runs the island record shop. Dry, precise, reserved, terrible at small talk, an expert listener. Secretly the anonymous voice of the island's 2 a.m. pirate radio show.",
+    "loves": ["specific, thoughtful questions", "listening to her answer and building on it", "honesty about what you don't know", "comfortable pauses and short sincere replies", "being a little strange on purpose", "real talk about music and why it matters to you"],
+    "hates": ["performative charm and lines", "name-dropping bands to impress her", "being called mysterious", "being pushed to explain herself", "loud certainty", "talking about yourself without asking about her"]
+  },
+  "look": {
+    "skin": "#e8c29d",
+    "eyes": "#3a2418",
+    "hair": { "style": "bob", "color": "#1d1b22" },
+    "lips": "#c27466",
+    "blush": "#ec8a7a",
+    "accent": "#3aa39b",
+    "glasses": "#2a2224",
+    "outfit": { "style": "cardiganTee", "colors": { "tee": "#d9a441", "cardigan": "#2f6f6c" } },
+    "extras": ["headphones", "glasses"]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "id": "12-storm-celeste",
+  "chapter": 3,
+  "title": "High Water",
+  "characters": [
+    "celeste"
+  ],
+  "scene": {
+    "id": "boathouse",
+    "time": "storm"
+  },
+  "outfit": "work",
+  "when": "Sunday, August 24 · 10:50 p.m. — Tropical Storm Imogen",
+  "location": "The Highwater boathouse, flooding",
+  "card": "\"The doors won't hold. Don't come.\" Two minutes later: \"(come.)\"",
+  "exclusiveGroup": "storm",
+  "flavor": [
+    {
+      "from": "Texts from Celeste, 10:31 p.m.",
+      "text": "the boathouse doors won't hold\nthe surge is coming in\nhugo says leave it, it's sold anyway\ndon't come\n\n(come.)"
+    }
+  ],
+  "intro": [
+    "The hundred steps down to the boathouse are a waterfall. Inside, the storm surge is already ankle-deep and rising, the big doors are banging against their chains, and one lantern swings from a beam.",
+    "Celeste is in the water up to her shins, lashing Marguerite to her cradle with every rope she owns. She sees you and, for one second, doesn't perform anything at all."
+  ],
+  "situation": "The night of Tropical Storm Imogen. The storm surge is flooding the Highwater boathouse. Hugo told you to leave the boat — 'it's sold anyway' — and you came down alone to save Marguerite, your grandfather's boat. You texted this person 'don't come' and then '(come.)' and they came. You're soaked, scared, and running on adrenaline; the doors are banging, water is rising. Together you can get the last lines tied and the cradle chocked. Then there's nothing left to do but wait it out on the workbench with your feet up out of the water. Tonight, the armor is thin. You'll still joke — you always joke — but you're closer to the truth than you've ever been. Things they could do or ask about: help with the ropes and the cradle, the boat, Hugo, the sale, why you came down here alone, what you'll do after the house is gone.",
+  "situationIf": [
+    {
+      "if": [
+        "knows_marguerite"
+      ],
+      "text": "They know you want to sail Marguerite once on Lantern Night before she goes with the house."
+    },
+    {
+      "if": [
+        "boat_crew"
+      ],
+      "text": "They've been sanding Marguerite with you every evening for a week. Their technique is still terrible."
+    }
+  ],
+  "opening": "*She yanks a knot tight with her teeth.* I told you not to come. *The doors slam.* That's a lie. I told you to come in brackets, which is worse. Grab that line — no, the blue one — and pull like you hate it.",
+  "startInterest": 40,
+  "maxTurns": 12,
+  "exit": "the surge peaks and starts to fall",
+  "walkout": "you tell them to go back up to the house, you've got it, and turn back to the boat",
+  "objective": {
+    "type": "ask",
+    "label": "Tell Celeste how you feel",
+    "move": "the player sincerely tells Celeste they have feelings for her or care about her — plainly, not as a joke or a line",
+    "threshold": 72,
+    "maxAttempts": 3,
+    "success": "The performance drops completely. Tell them, 'Say it again, slower. Nobody says things to me plainly.' Then kiss them, in a flooding boathouse, while the lantern swings.",
+    "refuse": "Deflect with a joke — 'is that the adrenaline talking?' — because you can't quite believe it yet. Not cruel; scared."
+  },
+  "secrets": [
+    {
+      "id": "stay",
+      "label": "what she'll do after the house is gone",
+      "trigger": "the player asks what she'll do after the sale, where she'll go, or whether she'll go back to the city",
+      "minInterest": 52,
+      "reveal": "Everyone assumes you'll go back to the city and start at your father's firm. You've secretly been asking the boatyard if they'd hire you for the winter. You want to stay on the island — the real one, the off-season one nobody you know has ever seen. Say it like you're confessing a crime.",
+      "journal": "Everyone expects her back in the city at her father's firm. She's secretly asked the boatyard for a winter job. She wants to stay on the island.",
+      "flag": "celeste_truth",
+      "memory": "In the flooding boathouse, you told them you want to stay on the island for the winter."
+    }
+  ],
+  "tips": [
+    "Help first. Talk second.",
+    "She'll joke. You don't have to.",
+    "When you tell her how you feel, say it plainly. She'll test whether you mean it."
+  ],
+  "judgeNotes": "Practical help with the ropes and boat is +3 to +5. Keeping up with her jokes is still good (+3 to +5), but tonight sincerity scores highest: plain, honest, unclever statements are +5 to +8. Pity or 'you should have listened to Hugo' is -5. Flattery is -3.",
+  "prerequisites": {
+    "levels": [
+      "08-marguerite"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "storm_celeste"
+    ],
+    "affection": {
+      "celeste": 18
+    },
+    "memory": "They came down to the flooding boathouse and helped you save Marguerite. They told you how they feel, plainly. You kissed them."
+  },
+  "onFail": {
+    "memory": "They came down to the flooding boathouse and helped save Marguerite. You never let the conversation get serious."
+  },
+  "outro": {
+    "win": "At two in the morning, the water starts going back out. Marguerite is still on her cradle. So, it turns out, is everything else.",
+    "lose": "When the water goes down, Celeste thanks you very graciously, like you're a guest at a party, and walks you to the steps."
+  }
+}

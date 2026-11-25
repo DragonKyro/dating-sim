@@ -1,0 +1,85 @@
+{
+  "id": "15-lantern-tamsin",
+  "chapter": 4,
+  "title": "Last Ferry",
+  "characters": [
+    "tamsin"
+  ],
+  "scene": {
+    "id": "harbor",
+    "time": "night",
+    "weather": "lanterns"
+  },
+  "when": "Sunday, August 31 · 11:30 p.m. — Lantern Night",
+  "location": "The end of the ferry dock",
+  "card": "Fourteen months. One field notebook. She's leaving on the same boat as you, and then much, much further.",
+  "flavor": [
+    {
+      "from": "Low Tide FM, 88.1 — final summer census",
+      "text": "\"…phoned in by our anonymous scientist, for the last time this summer: two hundred and fourteen seals. Two hundred and fifteen, if you count one human volunteer, which she says she does, now, officially.\""
+    }
+  ],
+  "intro": [
+    "Lantern Night. The wharf is crowded and golden; hundreds of paper lanterns are floating out of the harbor and rising into the dark.",
+    "At the very end of the ferry dock, away from everyone, Tamsin is sitting on a bollard with her duffel bag, her yellow slicker, and a battered field notebook in her lap."
+  ],
+  "situation": "Lantern Night, 11:30 p.m., at the end of the ferry dock. The seal survey is done. You leave on the last ferry tonight: two weeks of training in Cambridge, then fourteen months at an Antarctic research station. It's what you always do — leave for the next far place. Except this time, for the first time, you don't want to, and you hate how much you don't want to. This person is leaving on the same ferry tonight; their summer is over. You've been carrying the seal census notebook around all day trying to decide whether to give it to them. You won't ask for anything; you're not built for asking. Things they could talk about: the survey, the seals and Biscuit, Antarctica, letters, the lanterns, what happens next.",
+  "situationIf": [
+    {
+      "if": [
+        "tamsin_truth"
+      ],
+      "text": "They know about the eleven moves, and why you leave before anyone can ask you to stay."
+    },
+    {
+      "if": [
+        "knows_seal_names"
+      ],
+      "text": "They know all the seals' names. Biscuit's now big enough to steal fish from two gulls at once."
+    }
+  ],
+  "opening": "*She doesn't look up from the notebook.* Final count: two hundred and fourteen. Biscuit's fine. Gerald's an idiot. *She closes it.* Sorry. I'm terrible at this bit. The leaving bit. I'm usually gone before it starts.",
+  "startInterest": 46,
+  "maxTurns": 12,
+  "exit": "the ferry horn sounds for boarding",
+  "walkout": "you shoulder your duffel and go aboard without saying goodbye, the way you always do",
+  "objective": {
+    "type": "ask",
+    "label": "Ask Tamsin to let you wait for her",
+    "move": "the player asks Tamsin to keep this going while she's away — writing letters, waiting for her, visiting, or meeting when she's back",
+    "threshold": 78,
+    "maxAttempts": 3,
+    "success": "Say yes, and mean it, which terrifies you. Hand them the field notebook: 'Somebody has to keep count while I'm gone.' Tell them you'll write every week the station has post. Then kiss them like you're planning to come back.",
+    "refuse": "Deflect with something brutally practical — 'fourteen months is a very long time to wait for someone who smells of seal' — because you're scared they mean it."
+  },
+  "secrets": [],
+  "tips": [
+    "She's never let anyone ask her to come back. Ask.",
+    "Remember Biscuit. Remember the fog.",
+    "Practical promises mean more to her than poetry."
+  ],
+  "judgeNotes": "Finale. Callbacks (Gerald, Biscuit, the fog, the storm, the eleven moves, Antarctica) are +5 to +7. Concrete promises (letters, a date to meet, visiting) are +5 to +7. Flowery speeches are +1 to +3; she trusts practical sincerity. Guilt-tripping her for leaving is -5.",
+  "prerequisites": {
+    "levels": [
+      "11-storm-tamsin"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "ending_tamsin"
+    ],
+    "affection": {
+      "tamsin": 20
+    },
+    "memory": "On Lantern Night you gave them the seal census notebook and promised to write. You're planning to come back.",
+    "ending": "tamsin-together"
+  },
+  "onFail": {
+    "memory": "On Lantern Night you said goodbye at the end of the dock, the way you always do.",
+    "ending": "tamsin-bittersweet"
+  },
+  "outro": {
+    "win": "On the ferry, she falls asleep against your shoulder before you've cleared the breakwater. The notebook is in your coat pocket. On the first blank page, she's written: \"VOLUNTEER (PERMANENT).\"",
+    "lose": "She's on the far side of the ferry the whole crossing, watching the dark water. In Cambridge, she'll send one postcard. It says: \"214.\""
+  }
+}
