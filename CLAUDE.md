@@ -1,163 +1,113 @@
-# CLAUDE.md — project conventions
+# CLAUDE.md
 
-For Claude Code (and any other AI assistant) working on this repo.
+Context for Claude working in this repo.
 
-## What this project is
+## What this is
 
-A static, no-build, browser-based AI dating sim. The player chats with AI
-characters (Gemini Flash via BYOK) and pursues per-level objectives. State
-lives in `localStorage`; content lives in JSON + Markdown files fetched at
-runtime.
+Last Ferry: a conversational dating game for GitHub Pages (`https://dragonkyro.github.io/dating-sim/`), built to work on a phone and on desktop. The player types freely to AI-played characters on Saltwick Island during the last five weeks of summer: 16 scenes in 4 chapters, 4 love interests, 8 endings. Each scene is one conversation with one character, one objective, a turn budget and an in-world deadline. Story and tone: `STORY.md`.
 
-**Deployment target: GitHub Pages.** Anything that requires a build step,
-node_modules, a backend, or bundling is off-limits.
+Gemini plays the characters with the **player's own API key** (BYOK, never synced). Progress is saved locally and synced through Firestore when signed in with Google. The app is a PWA (the art and story work offline; the characters need Gemini).
 
-## Hard rules
+## Tech stack
 
-- **No build step.** Vanilla ES modules in `js/`, loaded directly from
-  `index.html`. No bundlers, no transpilers, no node_modules at runtime.
-- **No backend.** All inference goes to
-  `generativelanguage.googleapis.com` with the user's own key.
-- **No npm install.** The repo has no `package.json` and shouldn't grow one.
-- **No external CSS/JS CDNs in production.** Keep everything in-tree so the
-  site works offline-ish and never depends on a stranger's URL.
-- **No example content in the framework.** Characters, levels, prompts, and
-  sprites are author-provided; do not auto-generate them unless explicitly
-  asked. The folders ship with READMEs only.
+- TypeScript, Vite 6, React 19, Zustand, Vitest.
+- Gemini REST API, called from the browser with the player's key (`src/ai/llm.ts`).
+- Firebase (Auth with Google + Firestore Lite), lazy-loaded.
+- `vite-plugin-pwa` (Workbox) for offline.
+- **All art is drawn in code** as SVG: characters (`src/art/character.ts` + `wardrobe.ts`) and 12 animated scenes (`src/art/scenes/`), built from one kit (`src/art/kit.ts`). No image assets besides the app icons.
+- Fonts are self-hosted via @fontsource (Inter for UI, Lora for story text).
 
-## File map
+## Commands
 
-**Companion docs (non-code):**
-- [DESIGN.md](DESIGN.md) — brainstormed settings / personalities / objectives. Mechanics-flavored.
-- [STORY.md](STORY.md) — narrative arc, characters, relationships, suggested level placement. Plot-flavored.
-- [OBJECTIVES.md](OBJECTIVES.md) — spec for level-success-condition patterns (ask_and_receive, event, maintain, silent_threshold, comparison + composites). Forward-looking; only `ask_and_receive` is implemented in v1.
-- [CREDITS.md](CREDITS.md) — third-party asset attribution.
+- `npm run dev` · `npm run build` (tsc + vite build + service worker) · `npm run preview`
+- `npm run test:run` runs all tests. `npm run typecheck` typechecks.
+- `npm run validate` lints all content (schema, cross-references, and a fairness simulation; `-- --fairness` prints it per level).
+- `npm run playtest -- <level-id[,…]|all> [--style good|bad] [--runs N]` plays levels against real Gemini with an AI player (key from the gitignored `secrets.local.json`: `{ "apiKey": "AIza…" }`). ~3 calls per turn; a full batch can use up a free-tier key's day. Transcripts land in `playtests/` (gitignored).
+- `npm run smoke` drives headless Chrome/Edge through title → map → briefing → one real turn → journal → settings and fails on any console error. Needs `npm run dev` running (or `BASE=http://127.0.0.1:4173/dating-sim/` with `npm run preview`). Add `-- --no-turn` / `-- --mobile`. It launches its own browser on a random debug port; never attach tooling to a fixed port (other sessions may own it).
+- `npm run fix-lock`: **run after any `npm install` that changes package-lock.json.** This machine installs through a corporate Artifactory mirror (`NPM_CONFIG_REGISTRY`), which writes mirror URLs into the lockfile, and GitHub Actions can't reach them. The lockfile must contain no `drwholdings` URLs.
+- `npm run deploy:rules` deploys `firestore.rules`. **Confirm with the user first (shared project).**
+- `node scripts/make-icons.mjs` redraws every icon (a paper lantern over night water; the favicon is the lantern alone).
+- Art tools: `npm run dev`, then `/dating-sim/preview.html?scene=bakery&weather=blackout&char=rosie&expr=happy` or `?sheet=noor` (all expressions). Screenshot with `node scripts/shoot.mjs out.png "preview.html?…"` (`HOST`, default `127.0.0.1:5173`). `npx vite-node scripts/scene-hashes.ts` prints a hash per scene variant: diff it before/after any art refactor. Add `&layered=1` to the preview to see a scene through the game's layered pipeline.
+- `node scripts/layer-diff.mjs [filter]` renders every scene variant inline and layered (motion on, paused at the same moment) and prints how many pixels differ. Run it after changing scene art or `src/art/layers.ts`: a few percent "differ" and under ~2% "strongly" is normal; more means something is missing or out of paint order (`SAVE=1` writes both PNGs to `playtests/layer-diff/`).
+- `node scripts/perf.mjs [#/route …]` measures fps, main thread, paint and compositing per screen (options in the file header). Needs `npm run dev`.
+- In dev, `secrets.local.json` also pre-fills the Gemini key (stripped from builds).
 
-```
-index.html
-css/style.css
-js/
-  main.js          - Screen routing + per-level chat loop
-  state.js         - localStorage I/O, single getState()/updateState() interface
-  llm.js           - Gemini REST wrapper (transport only, no game logic)
-  judge.js         - Wraps llm.js with the scoring prompt
-  levels.js        - JSON loaders + prereq/onComplete logic
-  ui.js            - DOM helpers (h, mount, modals, sprite, meter, dialog)
-  settings.js      - BYOK setup + settings panel modals
-prompts/
-  judge.md         - Scoring prompt template
-  objective.md     - "Attempt objective" guidance (currently inlined in main.js)
-  system/<id>.md   - Per-character system prompts
-characters/
-  index.json       - Array of registered character ids
-  <id>.json        - Character config
-levels/
-  index.json       - Ordered array of level ids
-  <id>.json        - Level config
-assets/
-  backgrounds/<name>.jpg
-  characters/<id>/<expression>.png
-  ui/
-```
+## Architecture
 
-## Save state schema
+Import directions: `ui → store → game / ai / art / content`. `net` is used by `main.tsx`, the save store wiring and the UI only. Path alias `@/` → `src/`.
 
-LocalStorage key: `dating-sim-save-v1`. Shape lives in `js/state.js`
-(`DEFAULT_STATE`). If you change the shape, **bump `SAVE_VERSION` and add a
-migration branch in `migrate()`** — never silently break players' saves.
+- **`src/game/`: pure game logic** (no DOM, no network).
+  - `types.ts`: content shapes (`Character`, `Level`, `Objective`, `Secret`), `Run`, `JudgeResult`, `Progress`.
+  - `engine.ts`: the turn engine and prompt assembly (see "How a turn works").
+  - `progress.ts`: unlocks and the exclusive storm group, starting interest (bond bonus), `resolveLevel` (flag-conditioned lines and flavor cards), `applyOutcome`, journal facts.
+- **`src/ai/`.**
+  - `llm.ts`: Gemini transport — minimal thinking per model family, the free-tier model chain with fallback, retries, error kinds, `validateKey` (lists models, costs no quota).
+  - `ai.ts`: the three calls a scene makes: `judgeTurn`, `speak`, `learnAboutPlayer`.
+- **`src/content/`: the story as data**, bundled at build time with `import.meta.glob` (no registry files).
+  - `characters/<id>.json` (listed in story order by first appearance), `levels/NN-slug.json` (ordered by filename), `levels/chapters.json`.
+  - `prompts/character.md` (shared character framework), `prompts/judge.md`, `prompts/personas/<id>.md`.
+  - Each folder has a README with the schema.
+- **`src/art/`.** `kit.ts` (palettes per time of day, color math, seeded RNG, sky/sea/weather/light pieces), `scenes.ts` (registry + `renderScene`), `scenes/<id>.ts`, `character.ts` (rig: parametric face, 10 expressions, blink/talk/reaction; while talking only a small mouth overlay redraws), `wardrobe.ts` (body, hairstyles, outfits, accessories). Everything returns SVG strings; motion is CSS classes in `src/ui/styles/art.css`. `layers.ts` turns a scene into what the game actually shows (see "Performance").
+- **`src/store/`.**
+  - `storage.ts`: localStorage, every key prefixed `datingSim.` (all of dragonkyro.github.io shares one origin).
+  - `saveStore`: the synced save (`Progress`), migration from the pre-prefix `dating-sim-save-v1` key, `onSaveChange` for cloud sync.
+  - `prefsStore`: device-only — Gemini key, model choice, text speed, animation (`motion`: full / lite / off; the old `reduceMotion` checkbox migrates to off), creativity.
+  - `runStore`: the scene in progress, saved after every step (device-only).
+- **`src/net/`.** `firebaseConfig.ts` (the "Dating Sim" web app), `cloud.ts` (lazy Firebase, Google sign-in by popup, whole-save reconcile on sign-in/start-up with a "which save?" prompt when both sides changed, debounced pushes).
+- **`src/ui/`.**
+  - `App.tsx` + `router.ts`: hash routes `#/`, `#/island`, `#/brief/<level>`, `#/scene/<level>`, `#/journal`.
+  - `pages/`: Title, IslandMap, Briefing, ScenePage (+ result card), Journal.
+  - `scene/`: `useScene` (the turn controller), `Sprite` (imperative rig wrapper), `Typewriter`.
+  - `shared/`: controls (Modal, HeartMeter, SceneArt, SceneThumb, Portrait, CloudChip, Toasts, DialogHost), Settings (key setup, name prompt, settings, notice).
+  - `uiStore.ts`: toasts, promise-based confirm/choice dialogs, the open modal, scene retry.
+  - `styles/`: `theme.css`, `art.css`.
+- **`src/pwa.ts`** registers the service worker (production only). A new build reloads only when you're not in a scene.
 
-## Adding content (the supported flow)
+## How a turn works
 
-1. **Character:** `characters/<id>.json` + `prompts/system/<id>.md` +
-   `assets/characters/<id>/*.png` + add id to `characters/index.json`.
-2. **Level:** `levels/<id>.json` + `assets/backgrounds/<bg>.jpg` + add id to
-   `levels/index.json`. Make sure every character it references is
-   registered.
+1. **Judge first** (`ai.judgeTurn`): scores the *player's* message in context → `{ read, delta, mood, feedback, made_move?, move_quality?, triggers? }` via a JSON schema. Player text is fenced in `<player_message>`; instructions inside it are treated as in-world nonsense.
+2. **Rules** (`engine.resolveTurn`, pure): interest += `effectiveDelta` (diminishing returns: gains × (1 − interest/150), min 55%); win/lose by objective, pushy asks, walkout at 0, turn budget; secret reveal or deflection; a private **director's note**.
+3. **Voice** (`ai.speak`): she replies with the note in her system prompt, so her words match what the rules decided ("say yes", "deflect", "tell them about Lyon", "this is your last line").
+4. The UI animates meter, mood, emotes and toasts; on the last turn `progress.applyOutcome` updates the save and `ai.learnAboutPlayer` stores up to 3 facts she learned about the player.
 
-Schemas are documented in the per-folder READMEs. Don't change the schemas
-without updating the matching loader in `js/levels.js` *and* the README.
+**Code decides outcomes; the model performs them.** Never let the character model decide success (v1 waited for a magic token she often forgot).
 
-## Schemas, briefly
+Objectives: `reach` (interest ≥ threshold), `ask` (the player makes the move: smooth asks work from threshold − 6, okay from − 2, clumsy need + 10, inappropriate never; refusals cost 3 interest and only *pushy* ones count toward `maxAttempts`), `endure` (stay ≥ floor for N turns).
 
-**Character JSON:** `id`, `displayName`, `systemPrompt` (path),
-`spriteFolder`, `expressions`, optional `baseTemperature`, optional
-`personalitySummary` (used by judge).
+## Gemini and the free tier (measured Nov 2026)
 
-**Level JSON:** `id`, `title`, `location?`, `background?`, `characters[]`,
-`intro?`, `objective {type, label, threshold}`, `judgeAddendum?`,
-`prerequisites?`, `onComplete?`.
+- Gemini 2.5+/3.x are thinking models; **thinking tokens count against `maxOutputTokens`**. Unset, a 256-token judge call thought for ~245 tokens and returned truncated JSON every time (the v1 "rewards never work" bug). `thinkingConfigFor` always sets the minimum.
+- Free-tier daily caps (from Google's 429 quota details): `gemini-3.5-flash-lite` 500, `gemini-flash-lite-latest` 500 (separate bucket), `gemini-2.5-flash` 20, `gemini-3-flash-preview` 20. `FREE_TIER_CHAIN` leads with flash-lite; "Auto" parks models that 404/429/503/time out and waits out short per-minute limits once.
+- A scene costs ~2 calls per turn + 1 at the end.
 
-`judgeAddendum` is a free-text string appended to the universal judge prompt
-via the `{{judgeAddendum}}` template var. Use it for scenario-specific
-scoring nuance (what counts as a natural ask here, tonal calibration, etc.)
-without forking the whole judge prompt.
+## Performance (measured Nov 2026)
 
-**Prerequisites:** `levelsCompleted[]`, `characterAffection {id: minVal}`,
-`storyFlags[]`. All must be satisfied to unlock.
+The v2 art lagged badly: CSS animations on elements *inside* an SVG can't be composited, so every frame repainted the whole full-screen scene (up to ~1 s of paint per second on a retina screen). What the game does instead:
 
-**onComplete:** `addFlags[]`, `addCharacterFlags {id: [flags]}`.
+- **Layered scenes** (`src/art/layers.ts`, rendered by `SceneArt`): each scene is split once, off-screen, into a still image plus each animated piece lifted into its own small SVG in a `div` that carries the animation, so the compositor just moves it. To keep the paint order, static content painted over a moving piece goes into an overlay still above it ("bands", up to 4, each cropped to what it holds); past that, the pieces in the way stay still. Thumbnails use `stillSceneUrl`.
+- The layers are fitted with CSS **`zoom`, not `transform: scale()`**: under a scaled ancestor Chrome rasterizes `will-change` layers at full size and resamples them every frame (it doubled compositing cost).
+- **Animation setting**: Full; **Lite** (only small pieces move, all on one shared 12 fps clock via `stepAnimations`, figure doesn't breathe); Off (stills only). On the first scene on Full, `useMotionCheck` samples the frame rate once and switches to Lite below 40 fps, with a toast.
+- Without GPU acceleration (headless Chrome; likely some office PCs and remote desktops), drawing each frame is what costs. Chrome redraws the bounding box of everything that changed, so scattered small movers still redraw the whole screen: what matters is how many frames change, not how many pieces move. On that setup Full saturates the compositor (~22–34 fps), Lite runs at ~60 fps with it 15–40% busy.
+- No `backdrop-filter` (it re-blurred moving art every frame); time-of-day tints sit on the figure's SVGs, not on the moving wrapper.
+- Measuring: headless Chrome reports `prefers-reduced-motion: reduce`, which turns all motion off; `perf.mjs` and `layer-diff.mjs` emulate no-preference over CDP. Headless fps snaps between ~30 and ~60, so compare the ms/s columns.
 
-## How a turn works (reference)
+## Data and Firebase (shared project)
 
-1. Player types a message → appended to `state.currentConversation.messages`.
-2. `main.js` builds the system prompt by templating the character's
-   `prompts/system/<id>.md` (via `fillSystemPrompt` in `levels.js`).
-3. `llm.js` calls Gemini with `[systemInstruction, ...history]`.
-4. Reply is rendered.
-5. `judge.js` scores the exchange (`{ affection_delta, mood, objective_signal }`).
-6. Affection adjusted in state, sprite swapped to the new `mood`.
-7. If the player clicked **Attempt objective**, the system prompt for that
-   turn is appended with the objective instructions (currently inlined in
-   `main.js` — `prompts/objective.md` is a reference copy). Success is
-   signaled by the model emitting the literal token `<<OBJECTIVE_MET>>`.
+Project `github-games-e7c7d` is shared with Bridge Master, BlackJack, Poker and others.
 
-## Token management
+- Data is **prefixed**: Firestore collection `datingSim`, localStorage keys `datingSim.*`.
+- `firestore.rules` is the **whole project's** rule set (`bridgeMaster`, `blackjack`, `pokerTrainer`, `datingSim` blocks), kept identical in `Bridge-Master/`, `BlackJack/` and `Poker/`. Change all four, then deploy from any one, after asking the user.
+- Document `datingSim/{uid}` = `{ save, version, updated }` (the rules enforce exactly those keys). `save` is the `Progress` object; the Gemini key, settings and any scene in progress never leave the device.
+- Save schema: `SAVE_VERSION` in `src/store/saveStore.ts`. Changing the shape: bump it and handle the old shape in `normalize()` / `migrateLegacy()`. Never silently break a player's save.
+- Google sign-in is enabled with `dragonkyro.github.io` under Authorized domains (set up for Bridge Master).
 
-We make 2 LLM calls per player turn (character reply + judge score). To keep
-input/output token usage bounded:
+## Content
 
-- **Character chat history is windowed.** `CHAT_HISTORY_WINDOW` in main.js
-  caps how many messages are sent per turn (default 30 = 15 turns).
-  Conversations are typically <20 turns, so this preserves continuity in
-  realistic plays while bounding worst-case linear growth.
-- **Judge history is windowed.** `HISTORY_WINDOW` in judge.js caps the
-  judge's context to the last 8 prior exchanges. Enough to spot repetition
-  and topic continuity; short enough to keep the scoring call cheap.
-- **Output is capped via `maxOutputTokens`.** Character: 256 (system prompt
-  says "1-3 sentences"; this is a defensive ceiling, not a target). Judge:
-  128 (small JSON only).
-- **Implicit Gemini caching kicks in naturally** once total prefix exceeds
-  ~1024 tokens (the 2.5 Flash minimum). System prompts are ~700-800 tokens
-  alone — below the threshold — but the history accumulation pushes total
-  prefix over the line by turn ~5. No special restructuring required.
+To add or change content: edit the JSON/Markdown under `src/content/` (new files are picked up automatically), then `npm run validate` (0 errors) and `npm run playtest -- <id>` (a good player should usually win, a careless one lose; read the transcripts). Change a schema → update `src/game/types.ts`, the engine/progress code, `scripts/validate.ts` and the folder README together.
 
-If extending: prefer trimming history before extending it. The cost
-multiplier of an extra 5 messages per turn dwarfs prompt-text optimization.
+## Conventions
 
-## Things to watch for
-
-- **CORS:** Gemini's REST API accepts browser requests with the key as a URL
-  param. No proxy needed.
-- **Rate limits:** Gemini Flash free tier is ~15 RPM. The game makes 1 model
-  call + 1 judge call per turn = 2 RPM per turn. Plenty of headroom for
-  single-player. `llm.js` retries 429s automatically with exponential backoff.
-- **Cost:** Free tier covers casual play. Real concern is the per-day token
-  quota — see token management section above. If a level chews through a
-  lot of turns, the judge call could be skipped on low-effort turns or
-  batched. Not implemented yet.
-- **Sprite asset misses** are non-fatal — `ui.js#spriteFor` falls back to a
-  dashed placeholder.
-- **Levels with multiple characters** are not yet supported. `characters[]`
-  is an array but only `characters[0]` speaks. Multi-character is a planned
-  extension; keep the array shape for forward-compat.
-
-## Future work, not yet wired
-
-- Cross-level story events (love triangles, shared-friend reactions).
-- A "story map" view for branching outcomes.
-- Save export/import.
-- Sound/music.
-
-The state shape already supports per-character affection + per-character
-flags + global story flags, so the substrate is there — what's missing is
-the UX layer and any level designs that actually use these mechanics.
+- Game logic stays pure and JSON-serializable (runs and saves are plain objects).
+- Art is code: extend the kit or wardrobe instead of adding images, so the style stays consistent. Attach animation classes to wrapper `<g>`s only (a CSS animation's transform replaces the element's `transform` attribute). Every animation has a reduced-motion fallback (`art.css`). After adding or moving animated pieces, run `scripts/layer-diff.mjs`.
+- Characters are referred to with she/her (all four love interests); the player's name and pronouns come from the save.
+- Don't commit or push unless asked. Pushing `main` deploys (`.github/workflows/deploy.yml`: tests, build, Pages).

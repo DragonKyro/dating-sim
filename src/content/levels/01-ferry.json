@@ -1,0 +1,62 @@
+{
+  "id": "01-ferry",
+  "chapter": 1,
+  "title": "The 4:10 Ferry",
+  "characters": ["rosie"],
+  "scene": { "id": "ferry", "time": "golden" },
+  "when": "Saturday, July 26 · 4:10 p.m.",
+  "location": "Top deck of the ferry Persistence, halfway to Saltwick",
+  "card": "Forty pounds of flour, one broken cart, and a stranger who won't stop narrating.",
+  "flavor": [
+    { "from": "A note from Great-Aunt Bea, taped inside your ticket", "text": "Gull Cottage is the gray one with the blue door. Key under the third gnome. The tomatoes need you more than I do. Do NOT trust the kettle. — B.\nP.S. Get off the ferry before Captain Ozzie starts reciting." }
+  ],
+  "intro": [
+    "Saltwick is a smudge on the horizon, getting less smudgy. The top deck is mostly gulls and you.",
+    "Mostly. A woman in a flour-dusted apron is losing a wrestling match with a cart stacked with sacks of flour. One wheel has clearly decided it's done. She's narrating the fight out loud."
+  ],
+  "situation": "You're on the top deck of the 4:10 ferry back from the mainland with a cart of eight 50-lb flour sacks for the bakery. The cart's front wheel just jammed and a sack is sliding. You've been narrating the fight like a boxing commentator. You've never seen this person before; they're clearly not from the island (Saltwick has ~900 year-rounders and you know all of them). The ferry docks in about fifteen minutes and you need to get the cart down the ramp. Things you could bring up: the cart (your nemesis), the bakery (Amaral's, Front Street, malasadas), the island, Captain Ozzie's arrival poems, why they're coming to Saltwick.",
+  "situationIf": [],
+  "opening": "*She plants a foot on the cart and shoves.* Oh thank God, a witness. Round four to the cart. Do you have arms? You look like you have arms.",
+  "startInterest": 30,
+  "maxTurns": 10,
+  "exit": "the ferry docks at Saltwick",
+  "walkout": "you haul the cart off toward the stairs without them",
+  "objective": {
+    "type": "reach",
+    "label": "Win Rosie over before the ferry docks",
+    "threshold": 55,
+    "success": "You've decided you like this one. Before the ferry docks, invite them to come by Amaral's Bakery on Front Street — tell them to come before seven or the fishermen eat everything, and that their first malasada is on you. Make it sound offhand, like it's no big deal (it is a little bit of a big deal)."
+  },
+  "secrets": [
+    {
+      "id": "vo",
+      "label": "who the bakery belongs to",
+      "trigger": "the player asks why she's hauling the flour herself, who runs the bakery, or about her family",
+      "minInterest": 42,
+      "reveal": "The bakery is your grandmother Vó Lurdes's — fifty years on Front Street. Vó had a stroke in March. She's home and recovering and still bossing everyone around, but since then it's just been you, every 4 a.m. shift. Say it lightly, then make a joke right after.",
+      "journal": "The bakery is her grandmother Vó's. Since Vó's stroke in March, Rosie has run every 4 a.m. shift alone.",
+      "flag": "knows_vo",
+      "memory": "You told them about Vó's stroke and that you've been running the bakery alone since March."
+    }
+  ],
+  "tips": [
+    "Rosie runs on momentum. Play along with her bits, and throw one back.",
+    "She's literally carrying something heavy. Actions speak.",
+    "This is your first scene: just talk like yourself. The meter shows how it's landing."
+  ],
+  "judgeNotes": "This is the tutorial scene, so be encouraging: any friendly, engaged message with a bit of personality is +3 to +5. Offering to help with the cart is a great move (+4 to +6). Playing along with her boxing-commentary bit is +5 or more.",
+  "prerequisites": {},
+  "onComplete": {
+    "flags": ["met_rosie", "rosie_invite"],
+    "affection": { "rosie": 12 },
+    "memory": "Met them on the 4:10 ferry. They helped you beat the flour cart, and you invited them to the bakery."
+  },
+  "onFail": {
+    "flags": ["met_rosie"],
+    "memory": "Met them on the 4:10 ferry. It was a little awkward."
+  },
+  "outro": {
+    "win": "The ferry bumps the dock. Captain Ozzie begins to recite. Rosie salutes you with a sack of flour and is gone into the crowd, yelling at someone named Duarte.",
+    "lose": "The ferry docks. Rosie gets the cart down the ramp on her own, which seems to be how she does most things."
+  }
+}

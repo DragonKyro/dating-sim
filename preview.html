@@ -1,0 +1,26 @@
+<!doctype html>
+<!-- Dev-only art preview (served by `npm run dev`, not part of the build):
+       /dating-sim/preview.html?scene=ferry&time=golden
+       /dating-sim/preview.html?scene=bakery&weather=blackout&char=rosie&expr=happy
+       /dating-sim/preview.html?sheet=rosie        (every expression in a grid)
+       add &still=1 to freeze animation
+     scripts/shoot.mjs screenshots it headlessly. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Art preview</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #1a1320; overflow: hidden; font-family: system-ui, sans-serif; color: #eee; }
+      #stage { position: absolute; inset: 0; }
+      #char { position: absolute; left: 50%; bottom: 0; height: 92%; aspect-ratio: 500 / 800; transform: translateX(-50%); }
+      #sheet { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 4px; height: 100%; box-sizing: border-box; }
+      #sheet figure { margin: 0; position: relative; background: #3a3148; overflow: hidden; }
+      #sheet figure div { position: absolute; inset: 0 0 18px 0; }
+      #sheet figcaption { position: absolute; bottom: 0; width: 100%; text-align: center; font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <script type="module" src="/src/dev/preview.ts"></script>
+  </body>
+</html>

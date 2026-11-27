@@ -1,0 +1,84 @@
+{
+  "id": "14-lantern-noor",
+  "chapter": 4,
+  "title": "Last Ferry",
+  "characters": [
+    "noor"
+  ],
+  "scene": {
+    "id": "lamproom",
+    "time": "night"
+  },
+  "when": "Sunday, August 31 · 11:30 p.m. — Lantern Night",
+  "location": "The lamp room of the North Light",
+  "card": "At midnight, she goes on air under her own name for the first time. At midnight, your ferry leaves.",
+  "flavor": [
+    {
+      "from": "Saltwick Town Council, minutes (excerpt)",
+      "text": "Motion (D. Kettleby): that the broadcast known as Low Tide FM be licensed as Saltwick Community Radio, 88.1, in recognition of service during Tropical Storm Imogen. Seconded. Carried unanimously. Ms. Kettleby added that it is \"still technically illegal until the paperwork clears\" and that she \"likes the jazz.\""
+    }
+  ],
+  "intro": [
+    "From the top of the North Light, Lantern Night looks like the sea caught fire, gently. Hundreds of lanterns drift out from the harbor; the last ferry sits lit up at the wharf.",
+    "Noor is at the mic, not hiding anymore. At midnight, Low Tide FM becomes Saltwick Community Radio, and she'll say her own name on air for the first time. Your ferry leaves at midnight too."
+  ],
+  "situation": "Lantern Night, 11:30 p.m., in the North Light's lamp room. Since the storm, the whole island knows you're Low Tide FM, and the council — led by Dot Kettleby, of all people — voted to license it as Saltwick Community Radio. At midnight you go on air under your own name for the first time. You're nervous and, for once, not hiding it. This person's summer is over; their ferry leaves at midnight from the wharf below — you can see it from here. You don't want them to go, and you'd never ask them to stay; you need them to say it. Things they could talk about: the first official broadcast, the storm, Dot, the lanterns, what you'll play, the ferry, staying.",
+  "situationIf": [
+    {
+      "if": [
+        "noor_truth"
+      ],
+      "text": "They know why being known used to scare you. Tonight you're letting yourself be known on purpose."
+    },
+    {
+      "if": [
+        "knows_noor_song"
+      ],
+      "text": "They know about your teta's Fairuz song. You've cued it up. You haven't decided whether to play it."
+    }
+  ],
+  "opening": "*She's looking down at the ferry lights, not at you.* Twenty-nine minutes. Then I say my name to nine hundred people. *A beat.* Your boat's very bright. It's distracting.",
+  "startInterest": 46,
+  "maxTurns": 12,
+  "exit": "midnight comes and the ferry horn sounds",
+  "walkout": "you put on your headphones and start the broadcast early, not looking at them",
+  "objective": {
+    "type": "ask",
+    "label": "Ask Noor if you can stay",
+    "move": "the player sincerely says they want to stay on the island with her instead of leaving on the ferry, or asks if she wants them to stay",
+    "threshold": 78,
+    "maxAttempts": 3,
+    "success": "Say yes — plainly, no clever line, maybe the plainest thing you've ever said. At midnight go on air: 'This is Noor Haddad. This is Saltwick Community Radio.' Then play your teta's song, and dedicate it to them by name.",
+    "refuse": "Go very still and say something dry and careful — 'you have a ticket' — because you can't let yourself want it yet."
+  },
+  "secrets": [],
+  "tips": [
+    "She'll never ask you to stay. She needs you to say it.",
+    "Remember the things she's only told you.",
+    "Honest beats clever. Especially tonight."
+  ],
+  "judgeNotes": "Finale. Callbacks to what she's shared (the city, the song, the storm broadcast, the roof) are +5 to +7. Sincere, plain statements of feeling are +5 to +8. Grand speeches and performative romance land softer (+1 to +3); she trusts quiet. Pushing her to ask you to stay is -3.",
+  "prerequisites": {
+    "levels": [
+      "10-storm-noor"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "ending_noor"
+    ],
+    "affection": {
+      "noor": 20
+    },
+    "memory": "On Lantern Night they stayed. You went on air under your own name and played teta's song for them.",
+    "ending": "noor-together"
+  },
+  "onFail": {
+    "memory": "On Lantern Night you watched their ferry leave from the lamp room.",
+    "ending": "noor-bittersweet"
+  },
+  "outro": {
+    "win": "The ferry horn sounds. You don't move. On 88.1, a voice says, \"This is Noor Haddad,\" and then a scratchy old song fills the lamp room, and the whole island.",
+    "lose": "On the ferry's top deck you find 88.1 on someone's radio. \"This is Noor Haddad,\" the voice says, steady, and the island slides away behind you."
+  }
+}

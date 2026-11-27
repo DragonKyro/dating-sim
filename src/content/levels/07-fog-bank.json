@@ -1,0 +1,90 @@
+{
+  "id": "07-fog-bank",
+  "chapter": 2,
+  "title": "Fog Bank",
+  "characters": [
+    "tamsin"
+  ],
+  "scene": {
+    "id": "boat",
+    "time": "fog"
+  },
+  "when": "Thursday, August 14 · 7:20 a.m.",
+  "location": "Tamsin's survey boat, somewhere off the east ledges",
+  "card": "The engine's dead. The fog's thick. You're stuck together until it lifts.",
+  "flavor": [
+    {
+      "from": "Low Tide FM, 88.1 — 2:41 a.m.",
+      "text": "\"…and the seal census, phoned in by a concerned scientist who asked to remain anonymous: two hundred and fourteen, plus one pup who has learned to steal fish directly from a gull. She says she's not proud. She sounds very proud.\""
+    }
+  ],
+  "intro": [
+    "Two hours into the survey, the fog came in like someone had closed a door. Ten minutes after that, the outboard coughed and died.",
+    "Somewhere close, seals are making noises like disappointed old men. Tamsin has finished swearing at the engine and is sitting on the equipment case with a thermos, staring into the white."
+  ],
+  "situation": "Your survey boat, adrift on a calm sea in thick fog off the east ledges. The outboard's fuel line is clogged; you've radioed the harbor and they'll come when the fog lifts — probably within the hour. Until then, you're stuck with your volunteer. You have tea in a thermos (made properly). You can hear the seals but can't see them. You're annoyed at the engine, not at them, and a little thrown by how much you don't mind the company. You never stay anywhere long enough to be missed, and you don't talk about why. Things they could ask about: the seals (and their names), the fog, the work, your life before (Plymouth, Svalbard, the Falklands), the tea, what's after this survey.",
+  "situationIf": [
+    {
+      "if": [
+        "knows_seal_names"
+      ],
+      "text": "They know you've named all the seals, including Biscuit. Biscuit is out there somewhere in the fog."
+    },
+    {
+      "if": [
+        "knows_low_tide"
+      ],
+      "text": "Your landlady Noor is up at strange hours. You phone anonymous seal updates in to Low Tide FM. You'd die before admitting that."
+    }
+  ],
+  "opening": "*She unscrews the thermos and pours exactly one cup.* Right. Good news: the harbor knows where we are, roughly. Bad news: roughly. *She holds out the cup.* Tea. Don't say anything about the tea until you've tried it.",
+  "startInterest": 28,
+  "maxTurns": 12,
+  "exit": "the fog lifts and the rescue skiff appears",
+  "walkout": "you put your headphones on, turn your back, and start rewiring the radio with great concentration",
+  "objective": {
+    "type": "reach",
+    "label": "Get Tamsin to drop her guard before the fog lifts",
+    "threshold": 60,
+    "success": "Something they say makes you laugh — a real, surprised, undignified snort of a laugh. Then tell them, plainly, that you're glad it's them out here and not anyone else. Stop deflecting for a moment."
+  },
+  "secrets": [
+    {
+      "id": "antarctica",
+      "label": "where she's going next",
+      "trigger": "the player asks what she's doing after the survey, where she's going in the autumn, or whether she'll be back next summer",
+      "minInterest": 48,
+      "reveal": "You've been offered fourteen months at a research station in Antarctica, leaving in October. You've already said yes. You always say yes to the next far place. Say it matter-of-factly, then go quiet.",
+      "journal": "She's taking fourteen months at an Antarctic research station, leaving in October. She always says yes to the next far place.",
+      "flag": "knows_antarctica",
+      "memory": "You told them about Antarctica — fourteen months, leaving in October."
+    }
+  ],
+  "tips": [
+    "Stuck in a boat with no engine: complaining is the worst move. Be good company.",
+    "Try the tea before you say anything about it.",
+    "She deflects with jokes. You can be the one who doesn't."
+  ],
+  "judgeNotes": "Being calm and good-humored about being stranded is +3 to +5; complaining or panicking is -3 to -5. Real curiosity about her career and the far places she's worked is +4 to +6. A comfortable, quiet, sincere reply can be +5. Once she's above 50, honest personal sharing from the player lands strongly.",
+  "prerequisites": {
+    "levels": [
+      "03-tide-pools"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "tamsin_laughed"
+    ],
+    "affection": {
+      "tamsin": 14
+    },
+    "memory": "You were stranded in the fog with them for an hour. They made you laugh — properly — and you told them you were glad it was them."
+  },
+  "onFail": {
+    "memory": "You were stranded in the fog with them for an hour. It was a long hour."
+  },
+  "outro": {
+    "win": "The fog thins all at once, like a curtain going up, and two hundred seals are watching you from the ledges. Tamsin is still laughing.",
+    "lose": "The fog lifts. The harbor skiff appears. Tamsin is very polite to the skiff driver."
+  }
+}

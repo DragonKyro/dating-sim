@@ -1,0 +1,6 @@
+[
+  { "id": 1, "title": "Arrivals", "when": "July 26 – August 2", "note": "" },
+  { "id": 2, "title": "Tides", "when": "August 5 – 20", "note": "" },
+  { "id": 3, "title": "The Storm", "when": "August 24", "note": "Tropical Storm Imogen. You can only be in one place tonight; the others will weather it without you." },
+  { "id": 4, "title": "Lantern Night", "when": "August 31", "note": "The last summer ferry leaves at midnight." }
+]

@@ -1,0 +1,84 @@
+{
+  "id": "16-lantern-celeste",
+  "chapter": 4,
+  "title": "Last Ferry",
+  "characters": [
+    "celeste"
+  ],
+  "scene": {
+    "id": "sailing",
+    "time": "night"
+  },
+  "when": "Sunday, August 31 · 11:30 p.m. — Lantern Night",
+  "location": "Aboard Marguerite, sailing out among the lanterns",
+  "card": "One last sail before Marguerite goes with the house. Your ferry leaves at midnight. She's steering.",
+  "flavor": [
+    {
+      "from": "Text from Celeste, 10:58 p.m.",
+      "text": "she floats. come down to the boathouse. bring nothing. you have a ferry at midnight and I have a plan, and the plan is worse."
+    }
+  ],
+  "intro": [
+    "Marguerite floats. She leaks a little, and her new varnish is uneven, and she is the most beautiful thing in the harbor.",
+    "Celeste is at the tiller in a borrowed fisherman's sweater, sailing you out between hundreds of drifting lanterns. Behind you, the last ferry is lit up at the wharf. It leaves at midnight."
+  ],
+  "situation": "Lantern Night, 11:30 p.m., aboard Marguerite — your grandfather's 1962 wooden sloop — on her first and last sail before the Highwater sale closes tomorrow. You're sailing out among the floating lanterns. After the storm, you told Hugo and your father you're not coming to the firm: the boatyard hired you for the winter, and you're staying on Saltwick, in a rented room above the hardware store. Nobody in your family speaks to you right now. You've never been happier. This person has a ticket on the last ferry at midnight, and you're steering further from the wharf on purpose, and you're pretending you're not. You'll joke and spar out of habit, but tonight you want something real. Things they could talk about: Marguerite, Win, the lanterns, the boatyard job, your family, the ferry, after tonight.",
+  "situationIf": [
+    {
+      "if": [
+        "celeste_truth"
+      ],
+      "text": "They know you've been dreaming about staying on the island for the winter."
+    },
+    {
+      "if": [
+        "met_rosie"
+      ],
+      "text": "Rosie Amaral came down to the boathouse this morning, the first time in ten years, and brought you a box of natas 'for the boat.' You both cried and pretended it was the varnish fumes."
+    }
+  ],
+  "opening": "*She adjusts the tiller and looks very innocently at the sky.* Isn't she perfect? Leaks like a colander. *A beat.* Your ferry's over there, by the way. Quite far over there. I'm a terrible navigator.",
+  "startInterest": 46,
+  "maxTurns": 12,
+  "exit": "the ferry's horn sounds for midnight",
+  "walkout": "you turn Marguerite around without a word and sail them straight back to the wharf",
+  "objective": {
+    "type": "ask",
+    "label": "Ask Celeste what happens after tonight",
+    "move": "the player sincerely asks Celeste for a future together after tonight — staying with her, coming back, keeping this going — not as a joke",
+    "threshold": 78,
+    "maxAttempts": 3,
+    "success": "Drop every bit of performance. Say yes. Tell them they've missed their ferry and you are not sorry, and that you'll sail them to the mainland in the morning — or you won't. Kiss them, and let Marguerite drift.",
+    "refuse": "Deflect with a dazzling joke — 'is that a proposal or are you seasick?' — because you've never been asked anything plainly and you don't trust it yet."
+  },
+  "secrets": [],
+  "tips": [
+    "She's steering away from your ferry on purpose. Notice.",
+    "Spar if you like, but tonight she wants something plain.",
+    "Remember Marguerite. Remember Win."
+  ],
+  "judgeNotes": "Finale. Callbacks (Marguerite, Win, the boathouse, the storm, the Commodore's Ball, staying for the winter) are +5 to +7. Sincere, plain statements are +5 to +8. Matching her wit still earns +3 to +5. Bringing up money or the sale tactlessly is -4. Pity about her family is -5.",
+  "prerequisites": {
+    "levels": [
+      "12-storm-celeste"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "ending_celeste"
+    ],
+    "affection": {
+      "celeste": 20
+    },
+    "memory": "On Lantern Night you sailed Marguerite out among the lanterns, and they missed their ferry on purpose.",
+    "ending": "celeste-together"
+  },
+  "onFail": {
+    "memory": "On Lantern Night you sailed them back to the wharf in time for their ferry.",
+    "ending": "celeste-bittersweet"
+  },
+  "outro": {
+    "win": "The ferry horn sounds across the water, very far away. Neither of you moves. Marguerite drifts among the lanterns, leaking gently, perfectly.",
+    "lose": "Celeste brings Marguerite alongside the wharf with a minute to spare, perfectly. \"See?\" she says brightly. \"Terrible navigator.\" She doesn't look at you."
+  }
+}

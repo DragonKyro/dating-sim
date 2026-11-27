@@ -1,0 +1,100 @@
+{
+  "id": "06-antenna-weather",
+  "chapter": 2,
+  "title": "Antenna Weather",
+  "characters": [
+    "noor"
+  ],
+  "scene": {
+    "id": "rooftop",
+    "time": "night"
+  },
+  "when": "Saturday, August 9 · 1:31 a.m.",
+  "location": "The roof of Second Spin, Wharf Street",
+  "card": "A light on the roof at 1:30 a.m. She says it's for the weather radio.",
+  "flavor": [
+    {
+      "if": [
+        "met_noor"
+      ],
+      "from": "Low Tide FM, 88.1 — Tuesday, 2:03 a.m.",
+      "text": "\"…and to the new kid at Gull Cottage: welcome. Somebody walked into a record shop this week and asked a better question than most people manage in a year. Rare thing. Watch the third step on Bea's porch.\""
+    },
+    {
+      "from": "Low Tide FM, 88.1 — Tuesday, 2:03 a.m.",
+      "text": "\"…for the insomniacs, the night shift, and the lonely. Letters are in the box at the North Light. You know where. Here's something slow.\""
+    }
+  ],
+  "intro": [
+    "Walking home past Wharf Street at half past one, you notice a light moving on the roof of Second Spin.",
+    "The fire escape is down. At the top, Noor is sitting on a camping chair next to a tall homemade antenna with a blinking red light, wearing headphones and holding a soldering iron. She does not look happy to have company."
+  ],
+  "situation": "1:31 a.m. on your roof. You're fixing the antenna's feed line — you've told people it's 'for the weather radio.' In truth it's the transmitter antenna for Low Tide FM, the anonymous 2 a.m. pirate broadcast the whole island listens to. You're its voice, and nobody knows. You go on air at 2:00 from a different location and you need to leave by 1:50; you keep checking your watch. A stack of handwritten letters is in your toolbox, half-hidden. This person climbed up the fire escape. You're wary, a little caught out, and also… not entirely sorry they're here. Things they could ask about: the antenna, the weather radio story, the letters, why you're up at this hour, the stars, music, Low Tide FM itself.",
+  "situationIf": [
+    {
+      "if": [
+        "knows_noor_city"
+      ],
+      "text": "They already know you used to be a mixing engineer in the city."
+    },
+    {
+      "if": [
+        "met_tamsin"
+      ],
+      "text": "Tamsin, your tenant downstairs, has met them. Tamsin thinks your hours are suspicious."
+    }
+  ],
+  "opening": "*She pulls one side of her headphones down.* The fire escape isn't an invitation. *A pause.* Mind the cable. It's for the weather radio.",
+  "startInterest": 26,
+  "maxTurns": 12,
+  "exit": "it's nearly two and she has somewhere to be",
+  "walkout": "you pack up the toolbox, say you're going to bed, and climb back in through the window",
+  "objective": {
+    "type": "ask",
+    "label": "Find out what Noor is really doing up here",
+    "move": "the player asks what she's really doing on the roof, says it isn't a weather radio, or guesses that she's the voice of Low Tide FM",
+    "threshold": 58,
+    "maxAttempts": 3,
+    "success": "Admit it: you're Low Tide FM. They're the first person who's ever known. Then, because it's almost two, ask them to keep it quiet — and to come with you, sit in the corner, and not say a word while you go on air.",
+    "refuse": "Hold the line — 'It's a weather radio. The weather's very important to me.' — completely deadpan. Change the subject."
+  },
+  "secrets": [
+    {
+      "id": "song",
+      "label": "the song she'd play for herself",
+      "trigger": "the player asks what music she'd play for herself, her favorite song, or what she listens to when she's alone",
+      "minInterest": 46,
+      "reveal": "There's a scratchy old 1960s Fairuz recording your teta used to sing along to in the kitchen. You've never played it on air. It's too much yours. Say it quietly.",
+      "journal": "Her song is an old Fairuz recording her grandmother sang along to in the kitchen. She's never played it for anyone.",
+      "flag": "knows_noor_song",
+      "memory": "You told them about the Fairuz song your teta sang. You've never told anyone that."
+    }
+  ],
+  "tips": [
+    "She keeps checking the time. The island's favorite radio show starts at 2 a.m.",
+    "Noor rewards attention more than charm. What do you notice?",
+    "If you think you've figured something out, just ask."
+  ],
+  "judgeNotes": "Noticing details (the time-checking, the letters, that the antenna is way too big for a weather radio) is +4 to +6. Teasing her gently about the 'weather radio' is good. Talking about Low Tide FM as a listener (what it means to you) is +5. Pushy interrogation is -3. Loud enthusiasm at 1:30 a.m. on a roof is -2.",
+  "prerequisites": {
+    "levels": [
+      "02-second-spin"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "knows_low_tide"
+    ],
+    "affection": {
+      "noor": 14
+    },
+    "memory": "They climbed your fire escape at 1:30 a.m. and figured out you're Low Tide FM. They sat in the booth while you broadcast. Nobody else knows."
+  },
+  "onFail": {
+    "memory": "They climbed your fire escape at 1:30 a.m. You told them it was a weather radio."
+  },
+  "outro": {
+    "win": "At 2:00 a.m., in a lamp room at the top of the North Light, a voice you now recognize says: \"This is Low Tide FM. There's someone here tonight. They're being very quiet.\"",
+    "lose": "At 2:00 a.m. you're home in bed, and Low Tide FM comes on, and the voice sounds a little tired tonight."
+  }
+}

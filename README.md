@@ -1,102 +1,42 @@
-# AI Dating Sim
+# Last Ferry
 
-A browser-based dating sim where every girl is played by an LLM. Each level
-drops you into a different setting with a different personality, and your job
-is to chat your way to a mission objective — get her number, ask her out, win
-the dance, whatever the level says.
+*A summer on Saltwick Island.* A dating game where you type whatever you want and the people of a small island answer — played by Google's Gemini. It runs in the browser on a phone or a computer, and can sync your progress between devices when you sign in with Google.
 
-Runs entirely as static files (HTML + JS + CSS, no build step), deployable to
-GitHub Pages. The AI is **Google Gemini**, called directly from the browser
-using **your own free API key** (BYOK — bring your own key). No backend, no
-server, no auth dance, no monthly bills.
+**Play it:** https://dragonkyro.github.io/dating-sim/
 
-## How to play
+You're house-sitting your great-aunt Bea's cottage for the last five weeks of summer. Everyone on the island is deciding whether to stay or go: a baker with an acceptance letter she hasn't told anyone about, the anonymous voice of the 2 a.m. pirate radio show, a seal scientist who always leaves first, and the last summer daughter of a house that's being sold. The last ferry of the season leaves on Lantern Night. Who will you be standing next to?
 
-1. Open the deployed site (or run locally — see below).
-2. Click **Set up API key**. Follow the in-app instructions to grab a free
-   Gemini key from [Google AI Studio](https://aistudio.google.com/apikey).
-   It takes about 30 seconds; the key is stored only in your browser's
-   localStorage.
-3. Pick a level. Chat with the character. Watch the affection meter.
-4. When you think you're close, click **Attempt objective** — if her affection
-   is high enough, she'll agree (and the level completes). If not, you'll
-   take a small hit and can keep trying.
+## How it plays
 
-Progress (which levels you've completed, affection toward each girl, story
-flags) is saved automatically to your browser. Clearing site data wipes the
-save.
+- **Bring your own key.** The characters are played by Gemini using your own free API key from [Google AI Studio](https://aistudio.google.com/apikey). The key stays in your browser.
+- **No dialogue options.** Pick a scene on the island map, read the briefing, and say what you'd say.
+- **Every message counts.** A heart meter shows how into the conversation she is; each message moves it, with a note on why.
+- **Three kinds of goal.** Win her over; make your move at the right moment (too early and she'll put it off); or keep her steady through a bad night.
+- **Secrets and memory.** Characters hide things — ask at the right time and they'll tell you. They remember what you told them in later scenes.
+- **One storm, one night.** In chapter 3 you can only be in one place. The finale follows from it. 16 scenes, 8 endings.
 
-## Running locally
+## Tech
 
-It's all static files, but `file://` won't let JS modules fetch from the
-prompts/ folders. Use any static server:
+TypeScript, React 19, Vite 6, Zustand, and Vitest. All the art — the characters with their ten expressions and the twelve animated scenes — is drawn in code as SVG. It's an offline-capable PWA (vite-plugin-pwa). Firebase Auth and Firestore load lazily, only when you sign in. The project is laid out like [BlackJack](https://github.com/DragonKyro/BlackJack) and shares its Firebase project.
+
+## Develop
 
 ```bash
-# Python (built-in)
-python -m http.server 8000
-
-# Node
-npx serve
-
-# Or just deploy to GitHub Pages and use that.
+npm install        # then: npm run fix-lock (see CLAUDE.md)
+npm run dev        # http://localhost:5173/dating-sim/
+npm run test:run   # unit tests
+npm run validate   # lint the story content
+npm run build      # typecheck + production build + service worker
 ```
 
-Then open <http://localhost:8000>.
+A gitignored `secrets.local.json` (`{ "apiKey": "AIza…" }`) pre-fills your Gemini key in dev and powers `npm run playtest` (AI players against the real game) and `npm run smoke` (a headless browser run-through). Story and characters live in `src/content/` — see [STORY.md](STORY.md) and the READMEs there.
 
-## Project structure
+Pushing to `main` deploys to GitHub Pages through `.github/workflows/deploy.yml`, which runs the tests and builds first.
 
-```
-index.html             # Entry point
-css/style.css          # All styling
-js/                    # Game engine (vanilla ES modules)
-  main.js              #   Screen router + conversation loop
-  state.js             #   localStorage save/load
-  llm.js               #   Gemini API wrapper
-  judge.js             #   Affection scoring engine
-  levels.js            #   Level + character loading
-  ui.js                #   DOM helpers
-  settings.js          #   BYOK + settings modals
-prompts/               # System + judge prompts (markdown, templated at runtime)
-  system/              #   One file per character — see prompts/system/README.md
-  judge.md             #   Universal scoring prompt
-  objective.md         #   "Attempting the move" prompt fragment
-characters/            # Character JSONs — see characters/README.md
-levels/                # Level JSONs — see levels/README.md
-assets/                # Backgrounds, character sprites, UI icons
-  backgrounds/, characters/, ui/
-DESIGN.md              # Brainstormed settings / personalities / objectives
-CLAUDE.md              # Project conventions (for Claude Code / AI assistants)
-```
+## Firebase
 
-## Adding content
-
-- **A new character:** see [`characters/README.md`](characters/README.md).
-- **A new level:** see [`levels/README.md`](levels/README.md).
-- **A new background or sprite:** see READMEs in [`assets/`](assets/).
-- **Writing a system prompt:** see [`prompts/system/README.md`](prompts/system/README.md).
-
-In short: add a JSON file, add its id to the matching `index.json`, drop the
-art into `assets/`. No build step, no rebuild. Refresh and it appears.
-
-## Deploying to GitHub Pages
-
-1. Push the repo to GitHub.
-2. Repo Settings → Pages → Build from `main` branch, root folder.
-3. Wait ~1 minute for the first build. Visit `https://<user>.github.io/<repo>/`.
-
-That's it — there's no compile step.
+Save sync uses the shared Firebase project `github-games-e7c7d`. Each player gets one Firestore document, `datingSim/{uid}`, and only that player can read or write it. The rules are in `firestore.rules`. They are the whole project's rule set, so they also carry the other games' blocks. Deploy them with `npm run deploy:rules`.
 
 ## Privacy
 
-- Your Gemini API key lives in `localStorage` and is sent only to
-  `generativelanguage.googleapis.com` when the game makes a request.
-- Save state lives in `localStorage`. Nothing leaves your browser otherwise.
-- The game does not phone home or include analytics.
-
-## Roadmap (deferred)
-
-- More levels and characters.
-- Cross-level story events (love triangles, shared friend groups).
-- Branching story outcomes based on completion flags.
-- Save export/import for cross-device play.
-- Optional voice/audio.
+Your Gemini key and your conversations go only to Google's Gemini API. If you sign in, your progress (scenes, story flags, short memories the characters keep about you) is stored in Firestore, readable only by your account. No analytics.

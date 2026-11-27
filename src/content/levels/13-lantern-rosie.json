@@ -1,0 +1,85 @@
+{
+  "id": "13-lantern-rosie",
+  "chapter": 4,
+  "title": "Last Ferry",
+  "characters": [
+    "rosie"
+  ],
+  "scene": {
+    "id": "harbor",
+    "time": "night",
+    "weather": "lanterns"
+  },
+  "when": "Sunday, August 31 · 11:35 p.m. — Lantern Night",
+  "location": "The ferry slip, Saltwick harbor",
+  "card": "Rosie has a suitcase, a lantern from Vó, and a ticket on the same boat as you.",
+  "flavor": [
+    {
+      "from": "A postcard from Bea (Reykjavík)",
+      "text": "Back Tuesday. Teodoro proposed. I said I'd think about it, which at my age is a yes with paperwork. Leave the kettle where it is. It knows what it did. — B."
+    }
+  ],
+  "intro": [
+    "Lantern Night. The whole island is on the wharf. Hundreds of paper lanterns are drifting out over the black water, and more are rising into the sky — one for everyone who left and everyone who stayed.",
+    "The last summer ferry leaves at midnight. Your bag is already aboard. So is Rosie's: a battered suitcase, a box of malasadas, and a lantern with VÓ LURDES painted on the side in shaky capitals."
+  ],
+  "situation": "Lantern Night, 11:35 p.m., on the wharf beside the last summer ferry. After the storm you told your mother and Vó about Lyon. Vó said, 'Finally. Go, before I change my mind,' and your mother cried and then packed you eleven sandwiches. Your cousin Duarte is taking over the 4 a.m. shifts. You leave on this ferry tonight; the program starts September 15th. This person is leaving on the same ferry — their summer is over too. You're happy-terrified, giddy, about to cry every five minutes. You haven't talked about what happens to the two of you after tonight, and you desperately want them to bring it up first. Things they could talk about: Lyon, Vó, the lanterns, the summer, the ferry, what happens next.",
+  "situationIf": [
+    {
+      "if": [
+        "rosie_truth"
+      ],
+      "text": "They know what Vó said about the ovens, and how much it hurt. Vó has since taken it back, loudly, in front of half of Front Street."
+    },
+    {
+      "if": [
+        "rosie_date"
+      ],
+      "text": "Your first date was the Friday Night Market. You still have the ticket stub from the ring toss."
+    }
+  ],
+  "opening": "*She's holding a lantern in both hands like it might escape.* Vó made this. She painted her own name on it so I wouldn't forget her. Like I could. *She laughs, wobbly.* Twenty-five minutes. Say something so I don't cry on you.",
+  "startInterest": 46,
+  "maxTurns": 12,
+  "exit": "the ferry horn sounds for midnight boarding",
+  "walkout": "you pick up your suitcase and go aboard early, alone",
+  "objective": {
+    "type": "ask",
+    "label": "Ask Rosie for a future past this summer",
+    "move": "the player sincerely tells Rosie they want to keep this going after the summer — visiting her in Lyon, staying together, being together wherever they both end up",
+    "threshold": 78,
+    "maxAttempts": 3,
+    "success": "Say yes, completely. Tell them about the tiny apartment in Lyon with one window and a terrible oven, and that they'd better visit by October. Then let the lantern go — you and them, together — and kiss them as the ferry horn sounds.",
+    "refuse": "Get flustered and dodge with a bit — 'is this a ferry proposal? Captain Ozzie will write a poem' — because you're scared of wanting it this much."
+  },
+  "secrets": [],
+  "tips": [
+    "She's waiting for you to bring it up. Don't make her do it.",
+    "Remember what she's told you this summer. She will.",
+    "Plain and sincere beats smooth."
+  ],
+  "judgeNotes": "This is the finale. Callbacks to what they've shared this summer (Vó, the bakery, Lyon, the Night Market, the storm) are +5 to +7. Sincere, specific feelings are +5 to +8. Making her do the emotional work, joking past every serious moment, or being vague about the future is -2 to -4.",
+  "prerequisites": {
+    "levels": [
+      "09-storm-rosie"
+    ]
+  },
+  "onComplete": {
+    "flags": [
+      "ending_rosie"
+    ],
+    "affection": {
+      "rosie": 20
+    },
+    "memory": "On Lantern Night you let Vó's lantern go together and left on the last ferry together.",
+    "ending": "rosie-together"
+  },
+  "onFail": {
+    "memory": "On Lantern Night you said goodbye at the ferry. Nothing was decided.",
+    "ending": "rosie-bittersweet"
+  },
+  "outro": {
+    "win": "The ferry pulls away from Saltwick with every lantern on the island behind it. On the top deck, Rosie hands you a malasada and doesn't let go of your hand for the entire crossing.",
+    "lose": "The ferry pulls away. Rosie waves from the far end of the deck, and then goes inside, and you watch the lanterns until they're just stars."
+  }
+}

@@ -1,56 +1,27 @@
-# Credits / Asset attribution
+# Credits
 
-Third-party assets used in this project and their licenses.
+## Art
 
-## Character sprites
+All character and scene art is generated in code (SVG) by `src/art/` and is
+part of this project. There are no third-party images.
 
-All five girls now share a single consistent anime art style from one
-artist (Cabbit / KusSv). Male rivals are sourced separately and are
-single-expression placeholders.
+## Fonts
 
-### All 5 girls — Cabbit / KusSv VN Characters pack
-- **Source:** [VN Characters by Cabbit](https://opengameart.org/content/vn-characters) on OpenGameArt
-- **Artist:** Cabbit / KusSv
-- **License:** CC0 (public domain, no attribution required — included for good practice)
-- **Assignment:**
-  | Game character | Pack sprite | Expressions |
-  |---|---|---|
-  | Emma | Visiter_A | neutral, happy |
-  | Mira | Student   | neutral, happy, sad, annoyed, flirty |
-  | June | Dasha     | neutral, happy, sad |
-  | Yuki | Anna      | neutral, happy, sad, flirty |
-  | Naia | Visiter_B | neutral, happy |
+- **Inter** by Rasmus Andersson — SIL Open Font License 1.1 (via @fontsource/inter).
+- **Lora** by Cyreal — SIL Open Font License 1.1 (via @fontsource/lora).
 
-Each character's source files are preserved in `assets/characters/<id>/_source/`.
-Game falls back to `neutral.png` when an expression file doesn't exist
-(see `spriteFor` in [js/ui.js](js/ui.js)).
+## Software
 
-### Marcus (`assets/characters/marcus/*.png`) — placeholder
-- **Source:** [Male Sprite for Visual Novels](https://opengameart.org/content/male-sprite-for-visual-novels) on OpenGameArt — Mustafa
-- **Artist:** LisadiKaprio
-- **License:** CC-BY 4.0
-- **Notes:** Single neutral expression. Different art style than the girls — Marcus is a side character so the mismatch is acceptable. Replace with a Cabbit male equivalent if one becomes available.
+Open-source dependencies are listed in `package.json` (React, Zustand,
+Firebase JS SDK, Vite, Workbox via vite-plugin-pwa), each under its own
+license.
 
-### Owen (`assets/characters/owen/*.png`) — placeholder
-- **Source:** [Visual Novel Sprite Pack](https://opengameart.org/content/visual-novel-sprite-pack) on OpenGameArt — Shinji character
-- **Artist:** Exuin / Emily
-- **License:** CC0
-- **Notes:** Single neutral expression placeholder.
+## Services
 
-## Backgrounds
+- Characters are voiced by Google **Gemini** using the player's own API key.
+- Cloud saves use **Firebase Authentication** and **Cloud Firestore**.
 
-### Classroom (`assets/backgrounds/classroom.jpg`)
-- **Source:** [Empty Classroom by Barry Zhou](https://unsplash.com/photos/empty-classroom-khjwIW9HH5s) on Unsplash
-- **License:** [Unsplash License](https://unsplash.com/license)
+## Music referenced in the story
 
-### Library (`assets/backgrounds/library.jpg`)
-- **Source:** [Empty Library/Study Room by Allen Y](https://unsplash.com/photos/an-empty-library-or-study-room-ErkHo-rGq2E) — Wilfrid Laurier University, Waterloo, Canada
-- **License:** [Unsplash License](https://unsplash.com/license)
-
-### Coffee Shop (`assets/backgrounds/coffee-shop.jpg`)
-- **Source:** [Cozy Coffee Shop Interior by Haberdoedas](https://unsplash.com/photos/a-cozy-coffee-shop-interior-with-a-menu-_yJXuiFdsPo) — BOON Specialty Coffee, Almere, Netherlands
-- **License:** [Unsplash License](https://unsplash.com/license)
-
-### Art Gallery (`assets/backgrounds/gallery.jpg`)
-- **Source:** [Modern Art Gallery Hallway by Declan Sun](https://unsplash.com/photos/modern-art-gallery-hallway-with-minimalist-white-walls-_42kwMUmZw0) — Shanghai
-- **License:** [Unsplash License](https://unsplash.com/license)
+Noor's shop plays Alice Coltrane, and her grandmother's song is by Fairuz.
+They're mentioned by name only; no recordings are included.
