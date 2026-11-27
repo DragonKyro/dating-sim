@@ -1,6 +1,6 @@
 # STORY.md — Last Ferry
 
-The story bible. Level JSON (`levels/`) and persona prompts (`prompts/system/`)
+The story bible. Level JSON (`src/content/levels/`) and persona prompts (`src/content/prompts/personas/`)
 are the source of truth for what plays; this file explains *why*, so new
 content stays consistent with it.
 

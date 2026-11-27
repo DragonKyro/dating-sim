@@ -1,15 +1,15 @@
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-node_modules/
+node_modules
+dist
+.vite
+.firebase
+coverage
 *.log
+.DS_Store
 .env
-.env.local
+.claude/settings.local.json
 
 # Local dev secrets — must NEVER be committed.
 secrets.local.json
-secrets.local.js
 
-# Local playtest transcripts (tools/playtest.mjs)
+# Local playtest transcripts and screenshots (npm run playtest / smoke)
 playtests/
