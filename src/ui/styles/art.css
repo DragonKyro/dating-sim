@@ -1,12 +1,11 @@
-/* Animation vocabulary for the SVG art (js/art/*). Scenes and characters only
+/* Animation vocabulary for the SVG art (src/art/). Scenes and characters only
    attach these class names; all motion lives here so it can be disabled in
-   one place (Settings → Reduce motion, or the OS preference). */
+   one place (Settings → Animation: Off, or the OS preference). */
 
 .scene-art, .char-art { display: block; width: 100%; height: 100%; }
 /* Only classes that pivot around their own center get fill-box: applying it
    globally would move the origin of every transform="translate() scale()". */
-.a-flap, .a-flicker, .a-spin, .a-sway, .a-bob, .a-bob-slow, .a-rattle,
-.char-art .c-body, .char-art .c-sway, .char-art .c-head { transform-box: fill-box; }
+.a-flap, .a-flicker, .a-spin, .a-sway, .a-bob, .a-bob-slow, .a-rattle { transform-box: fill-box; }
 
 /* --- sky & weather ----------------------------------------------------- */
 @keyframes a-drift { from { transform: translateX(-1800px); } to { transform: translateX(1800px); } }
@@ -93,29 +92,49 @@
 @keyframes a-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px) rotate(-0.4deg); } 75% { transform: translateX(3px) rotate(0.4deg); } }
 .a-rattle { animation: a-shake 0.5s ease-in-out infinite; }
 
-/* --- characters ------------------------------------------------------- */
-@keyframes c-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.006, 1.012); } }
-.char-art .c-body { animation: c-breathe 4.2s ease-in-out infinite; transform-origin: center bottom; }
-@keyframes c-head-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
-.char-art .c-head-idle { animation: c-head-idle 4.2s ease-in-out infinite; }
-@keyframes c-hair-sway { 0%, 100% { transform: rotate(-0.7deg); } 50% { transform: rotate(0.7deg); } }
-.char-art .c-sway { animation: c-hair-sway 5.5s ease-in-out infinite; transform-origin: center top; }
+/* --- characters -------------------------------------------------------
+   Idle motion and reactions move the whole figure from OUTSIDE its SVG
+   (the .char-breathe wrapper and the <svg> box itself), so the GPU moves a
+   finished picture instead of repainting the figure every frame. Only the
+   head-tilt transition on a mood change happens inside. */
+.char-art .c-head { transform-box: fill-box; transition: transform 0.45s cubic-bezier(.3,1.4,.5,1); transform-origin: 50% 85%; }
+@keyframes c-breathe { 0%, 100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(-2px) scaleY(1.006); } }
+.char-breathe { width: 100%; height: 100%; animation: c-breathe 4.2s ease-in-out infinite; transform-origin: 50% 100%; will-change: transform; }
 
-.char-art .c-head { transition: transform 0.45s cubic-bezier(.3,1.4,.5,1); transform-origin: 50% 85%; }
+@keyframes c-hop { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-1.6%); } 65% { transform: translateY(0.25%); } }
+@keyframes c-jolt { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-2.4%) scale(1.01); } }
+@keyframes c-recoil { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-1.4%); } 45% { transform: translateX(1.2%); } 70% { transform: translateX(-0.6%); } }
+@keyframes c-droop { 0% { transform: translateY(0); } 100% { transform: translateY(0.75%); } }
+@keyframes c-jitter { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-0.4%, 0.15%); } 50% { transform: translate(0.4%, -0.15%); } 75% { transform: translate(-0.2%, -0.15%); } }
+/* .char-rig wraps the figure and its mouth overlay (see createCharacter). */
+.char-rig { position: relative; width: 100%; height: 100%; }
+.char-mouth { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; will-change: transform; }
+.char-mouth g { transform-box: view-box; transition: transform 0.45s cubic-bezier(.3,1.4,.5,1); }
+.char-rig.react-hop { animation: c-hop 0.55s ease-out; }
+.char-rig.react-jolt { animation: c-jolt 0.45s ease-out; }
+.char-rig.react-recoil { animation: c-recoil 0.5s ease-out; }
+.char-rig.react-droop { animation: c-droop 0.8s ease-out forwards; }
+.char-rig.react-jitter { animation: c-jitter 0.35s linear 2; }
 
-@keyframes c-hop { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-14px); } 65% { transform: translateY(2px); } }
-@keyframes c-jolt { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-20px) scale(1.01); } }
-@keyframes c-recoil { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 45% { transform: translateX(6px); } 70% { transform: translateX(-3px); } }
-@keyframes c-droop { 0% { transform: translateY(0); } 100% { transform: translateY(6px); } }
-@keyframes c-jitter { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, 1px); } 50% { transform: translate(2px, -1px); } 75% { transform: translate(-1px, -1px); } }
-.char-art.react-hop .c-react { animation: c-hop 0.55s ease-out; }
-.char-art.react-jolt .c-react { animation: c-jolt 0.45s ease-out; }
-.char-art.react-recoil .c-react { animation: c-recoil 0.5s ease-out; }
-.char-art.react-droop .c-react { animation: c-droop 0.8s ease-out forwards; }
-.char-art.react-jitter .c-react { animation: c-jitter 0.35s linear 2; }
+/* --- scenes on the GPU (see src/art/layers.ts) ---------------------------
+   A scene is a still image plus lifted animated pieces in a 1600 × 900 px
+   layer scaled to fit; the box is sized like object-fit: cover. */
+.backdrop { container-type: size; }
+.scene-box { position: absolute; left: 50%; top: 50%; width: max(100cqw, calc(100cqh * 16 / 9)); aspect-ratio: 16 / 9; transform: translate(-50%, -50%); overflow: hidden; }
+.scene-still { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* Fitted with zoom (set by SceneArt), not a transform: see SceneArt. */
+.fx-layer { position: absolute; left: 0; top: 0; pointer-events: none; }
+.fx-el { position: absolute; will-change: transform, opacity; }
+/* A still band drawn above some moving pieces (layers.ts keeps the paint order). */
+.fx-band { position: absolute; display: block; }
+.fx-el > svg { display: block; overflow: visible; }
+
+/* Lite: the figure holds still (a large layer moving every frame is the
+   costly part without a fast GPU); small details keep moving. */
+.motion-lite .char-breathe { animation: none; }
 
 /* --- reduce motion ---------------------------------------------------- */
-.reduce-motion .scene-art *, .reduce-motion .char-art *, .reduce-motion .char-art { animation: none !important; transition: none !important; }
+.reduce-motion .scene-art *, .reduce-motion .char-art *, .reduce-motion .char-rig, .reduce-motion .char-mouth *, .reduce-motion .fx-el, .reduce-motion .char-breathe { animation: none !important; transition: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .scene-art *, .char-art *, .char-art { animation: none !important; transition: none !important; }
+  .scene-art *, .char-art *, .char-rig, .char-mouth *, .fx-el, .char-breathe { animation: none !important; transition: none !important; }
 }

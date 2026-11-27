@@ -19,7 +19,7 @@ export const EXPRESSIONS = ["neutral", "happy", "laugh", "flirty", "interested",
 
 export type Crop = "full" | "face" | "bust";
 type Side = "l" | "r";
-export type MouthKind = "rest" | "smile" | "laugh" | "smirk" | "parted" | "o" | "wavy" | "flat" | "frown" | "pursed" | "talkA" | "talkB";
+export type MouthKind = "rest" | "smile" | "laugh" | "smirk" | "parted" | "o" | "wavy" | "flat" | "frown" | "pursed" | "talkA" | "talkB" | "none";
 type React = "hop" | "jolt" | "recoil" | "droop" | "jitter" | null;
 interface EyeSpec { open?: number; lid?: "normal" | "flat" | "soft"; look?: [number, number]; closed?: "happy"; pupil?: number }
 interface BrowSpec { raise?: number; tilt?: number; arch?: number; asym?: number }
@@ -143,6 +143,8 @@ function mouthMarkup(kind: MouthKind, p: CharPalette): string {
   const line = shade(p.lips, 0.35);
   const inside = "#6e2a33", tongue = "#d9727a";
   switch (kind) {
+    case "none":
+      return "";
     case "smile":
       return `<path d="M${x - 17} ${y - 3} Q${x} ${y + 4} ${x + 17} ${y - 3} Q${x + 11} ${y + 14} ${x} ${y + 15} Q${x - 11} ${y + 14} ${x - 17} ${y - 3}Z" fill="${inside}"/>
               <path d="M${x - 9} ${y + 10} Q${x} ${y + 6} ${x + 9} ${y + 10} Q${x} ${y + 15} ${x - 9} ${y + 10}Z" fill="${tongue}"/>
@@ -278,9 +280,13 @@ export function characterSVG(look: Look, { expression = "neutral", outfit, crop 
   </svg>`;
 }
 
-/** A live, animated character mounted in the DOM. */
+/**
+ * A live, animated character mounted in the DOM. `el` wraps the figure's SVG
+ * and a tiny mouth overlay: while she talks only the overlay redraws, so the
+ * figure itself is painted once instead of ~8 times a second.
+ */
 export interface CharacterHandle {
-  el: SVGSVGElement;
+  el: HTMLDivElement;
   readonly expression: string;
   setExpression(name: string): void;
   talk(on: boolean): void;
@@ -288,30 +294,54 @@ export interface CharacterHandle {
 }
 
 export function createCharacter(look: Look, { expression = "neutral", outfit, idle = true, crop = "full" }: { expression?: string; outfit?: string; idle?: boolean; crop?: Crop } = {}): CharacterHandle {
-  const wrap = document.createElement("div");
-  wrap.innerHTML = characterSVG(look, { expression, outfit, crop });
-  const el = wrap.firstElementChild as SVGSVGElement;
+  const el = document.createElement("div");
+  el.className = "char-rig";
+  el.innerHTML = characterSVG(look, { expression, outfit, crop });
+  const svg = el.firstElementChild as SVGSVGElement;
+  // The mouth overlay shares the figure's viewBox, so coordinates line up.
+  // Her mouth is never covered by hair, glasses or accessories.
+  const NS = "http://www.w3.org/2000/svg";
+  const mouthSvg = document.createElementNS(NS, "svg");
+  mouthSvg.setAttribute("class", "char-mouth");
+  mouthSvg.setAttribute("viewBox", svg.getAttribute("viewBox") ?? `0 0 ${VIEW.w} ${VIEW.h}`);
+  mouthSvg.setAttribute("preserveAspectRatio", svg.getAttribute("preserveAspectRatio") ?? "xMidYMax meet");
+  mouthSvg.setAttribute("aria-hidden", "true");
+  mouthSvg.style.display = "none";
+  const mouthG = document.createElementNS(NS, "g");
+  mouthSvg.appendChild(mouthG);
+  el.appendChild(mouthSvg);
   const p = paletteFor(look);
   // Reuse the gradient ids baked into the markup for face redraws.
   const ids: RigIds = {
-    iris: el.querySelector("linearGradient")!.id,
-    blush: el.querySelector("radialGradient")!.id,
-    shine: el.querySelectorAll("linearGradient")[1]?.id ?? "",
+    iris: svg.querySelector("linearGradient")!.id,
+    blush: svg.querySelector("radialGradient")!.id,
+    shine: svg.querySelectorAll("linearGradient")[1]?.id ?? "",
     clip: uid("eye"),
-    face: el.querySelector("clipPath")?.id ?? "",
+    face: svg.querySelector("clipPath")?.id ?? "",
   };
-  const faceG = el.querySelector('[data-part="face"]')!;
-  const browsG = el.querySelector('[data-part="brows"]')!;
-  const headG = el.querySelector<SVGGElement>(".c-head")!;
+  const faceG = svg.querySelector('[data-part="face"]')!;
+  const browsG = svg.querySelector('[data-part="brows"]')!;
+  const headG = svg.querySelector<SVGGElement>(".c-head")!;
 
   let current = EXPR[expression] ? expression : "neutral";
   let talking = false, blinking = false;
   let talkTimer: ReturnType<typeof setTimeout> | undefined, blinkTimer: ReturnType<typeof setTimeout> | undefined;
-  let mouthOverride: MouthKind | null = null;
   const spec = (name: string): ExprSpec => EXPR[name] ?? EXPR.neutral!;
 
   function drawFace() {
-    faceG.innerHTML = faceMarkup(p, current, ids, { blink: blinking, mouth: mouthOverride });
+    // While talking, the overlay draws the mouth.
+    faceG.innerHTML = faceMarkup(p, current, ids, { blink: blinking, mouth: talking ? "none" : null });
+  }
+
+  /** The overlay tilts with the head: same angle, same pivot (50% 85% of the head's box). */
+  let pivot = "";
+  function tiltMouth() {
+    if (!pivot && svg.isConnected) {
+      const b = headG.getBBox();
+      pivot = `${b.x + b.width / 2}px ${b.y + b.height * 0.85}px`;
+      mouthG.style.transformOrigin = pivot;
+    }
+    mouthG.style.transform = `rotate(${spec(current).tilt}deg)`;
   }
 
   function setExpression(name: string) {
@@ -321,6 +351,7 @@ export function createCharacter(look: Look, { expression = "neutral", outfit, id
     drawFace();
     browsG.innerHTML = browsMarkup(p, name);
     headG.style.transform = `rotate(${spec(name).tilt}deg)`;
+    tiltMouth();
     if (changed && spec(name).react) {
       const cls = `react-${spec(name).react}`;
       el.classList.remove("react-hop", "react-jolt", "react-recoil", "react-droop", "react-jitter");
@@ -335,14 +366,19 @@ export function createCharacter(look: Look, { expression = "neutral", outfit, id
     if (on === talking) return;
     talking = on;
     clearTimeout(talkTimer);
-    if (!on) { mouthOverride = null; drawFace(); return; }
+    drawFace();
+    if (!on) {
+      mouthSvg.style.display = "none";
+      return;
+    }
+    tiltMouth();
+    mouthSvg.style.display = "";
     let i = 0;
     const base = spec(current).mouth;
     const loop = () => {
       // Alternate open / mood-shaped / half-open so speech doesn't look mechanical.
       const frames: MouthKind[] = base === "laugh" || base === "smile" ? ["talkA", base, "talkB", base] : ["talkA", base, "talkB", "rest"];
-      mouthOverride = frames[i++ % frames.length]!;
-      drawFace();
+      mouthG.innerHTML = mouthMarkup(frames[i++ % frames.length]!, p);
       talkTimer = setTimeout(loop, 95 + Math.random() * 70);
     };
     loop();

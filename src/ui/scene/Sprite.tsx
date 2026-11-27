@@ -16,5 +16,9 @@ export function Sprite({ look, outfit, handle, leaving = false }: { look: Look; 
       if (handle.current === c) handle.current = null;
     };
   }, [look, outfit, handle]);
-  return <div ref={holder} className={`stage-char${leaving ? ' leaving' : ''}`} />;
+  return (
+    <div className={`stage-char${leaving ? ' leaving' : ''}`}>
+      <div ref={holder} className="char-breathe" />
+    </div>
+  );
 }

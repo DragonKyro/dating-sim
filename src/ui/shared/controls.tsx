@@ -1,11 +1,12 @@
 // Small shared building blocks: modal shell, heart meter, art wrappers,
 // dialog lines with *actions*, the cloud chip, toasts and the dialog host.
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Character, SceneSpec } from '@/game/types';
-import { renderScene } from '@/art/scenes';
+import { layeredScene, stepAnimations, stillSceneUrl, VIEW_H, VIEW_W } from '@/art/layers';
 import { characterSVG, type Crop } from '@/art/character';
 import { useCloud } from '@/net/cloud';
+import { usePrefs } from '@/store/prefsStore';
 import { splitActions, svgDataUrl } from '../text';
 import { openModal, useDialog, useToasts } from '../uiStore';
 
@@ -62,11 +63,63 @@ export function RichLine({ text }: { text: string }) {
   );
 }
 
-/** A live, animated scene filling its parent. */
+/**
+ * A scene filling its parent like `object-fit: cover`: a still image plus the
+ * lifted animated pieces (see art/layers.ts), so motion runs on the GPU
+ * instead of repainting the whole SVG every frame.
+ */
 export function SceneArt({ spec, className = 'backdrop', still = false }: { spec: SceneSpec; className?: string; still?: boolean }) {
   const { id, time, weather } = spec;
-  const html = useMemo(() => renderScene({ id, time, weather }), [id, time, weather]);
-  return <div className={`${className}${still ? ' still' : ''}`} dangerouslySetInnerHTML={{ __html: html }} />;
+  const motion = usePrefs((p) => (still ? 'off' : p.motion));
+  const scene = useMemo(() => layeredScene({ id, time, weather }, { motion }), [id, time, weather, motion]);
+  // The layers are laid out at 1600×900 and fitted with `zoom`, not a scale
+  // transform: under a scaled ancestor the browser rasterizes each moving layer
+  // at full size and resamples it every frame (costly without a GPU), while
+  // zoom lays them out, and draws them, at their real size. Measured before
+  // the first paint so they're never drawn at the wrong size.
+  const box = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const fit = () => {
+      const s = el.clientWidth / VIEW_W;
+      if (s) setScale(s);
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Lite: the moving details tick together at a low frame rate.
+  const fx = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (motion !== 'lite' || !fx.current) return;
+    return stepAnimations(fx.current);
+  }, [scene, motion]);
+  return (
+    <div className={className}>
+      <div className="scene-box" ref={box}>
+        <img className="scene-still" src={scene.still} alt="" draggable={false} />
+        {scene.layers.length > 0 && (
+          <div className="fx-layer" ref={fx} style={{ width: VIEW_W, height: VIEW_H, zoom: scale }}>
+            {scene.layers.map((l, i) => (
+              <Fragment key={i}>
+                {/* Paint order: an overlay still goes between the bands of moving pieces. */}
+                {scene.overlays.slice(scene.layers[i - 1]?.band ?? 0, l.band).map((o) => (
+                  <img key={o.src} className="fx-band" src={o.src} style={{ left: o.x, top: o.y, width: o.w, height: o.h }} alt="" draggable={false} />
+                ))}
+                <div className="fx-el" style={{ left: l.x, top: l.y, width: l.w, height: l.h, ...l.style }} dangerouslySetInnerHTML={{ __html: l.svg }} />
+              </Fragment>
+            ))}
+            {scene.overlays.slice(scene.layers.at(-1)?.band ?? 0).map((o) => (
+              <img key={o.src} className="fx-band" src={o.src} style={{ left: o.x, top: o.y, width: o.w, height: o.h }} alt="" draggable={false} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 /** Static art as an <img>, so dozens of thumbnails stay out of the live DOM. */
@@ -77,8 +130,8 @@ export function SvgImage({ markup, alt }: { markup: string; alt: string }) {
 
 export function SceneThumb({ spec, alt }: { spec: SceneSpec; alt: string }) {
   const { id, time, weather } = spec;
-  const markup = useMemo(() => renderScene({ id, time, weather }), [id, time, weather]);
-  return <SvgImage markup={markup} alt={alt} />;
+  const src = useMemo(() => stillSceneUrl({ id, time, weather }), [id, time, weather]);
+  return <img src={src} alt={alt} draggable={false} decoding="async" />;
 }
 
 export function Portrait({ character, expression = 'neutral', crop = 'bust', className = 'portrait', asImage = false }: { character: Character; expression?: string; crop?: Crop; className?: string; asImage?: boolean }) {

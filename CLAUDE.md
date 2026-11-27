@@ -27,7 +27,9 @@ Gemini plays the characters with the **player's own API key** (BYOK, never synce
 - `npm run fix-lock`: **run after any `npm install` that changes package-lock.json.** This machine installs through a corporate Artifactory mirror (`NPM_CONFIG_REGISTRY`), which writes mirror URLs into the lockfile, and GitHub Actions can't reach them. The lockfile must contain no `drwholdings` URLs.
 - `npm run deploy:rules` deploys `firestore.rules`. **Confirm with the user first (shared project).**
 - `node scripts/make-icons.mjs` redraws every icon (a paper lantern over night water; the favicon is the lantern alone).
-- Art tools: `npm run dev`, then `/dating-sim/preview.html?scene=bakery&weather=blackout&char=rosie&expr=happy` or `?sheet=noor` (all expressions). Screenshot with `node scripts/shoot.mjs out.png "preview.html?…"` (`HOST`, default `127.0.0.1:5173`). `npx vite-node scripts/scene-hashes.ts` prints a hash per scene variant: diff it before/after any art refactor.
+- Art tools: `npm run dev`, then `/dating-sim/preview.html?scene=bakery&weather=blackout&char=rosie&expr=happy` or `?sheet=noor` (all expressions). Screenshot with `node scripts/shoot.mjs out.png "preview.html?…"` (`HOST`, default `127.0.0.1:5173`). `npx vite-node scripts/scene-hashes.ts` prints a hash per scene variant: diff it before/after any art refactor. Add `&layered=1` to the preview to see a scene through the game's layered pipeline.
+- `node scripts/layer-diff.mjs [filter]` renders every scene variant inline and layered (motion on, paused at the same moment) and prints how many pixels differ. Run it after changing scene art or `src/art/layers.ts`: a few percent "differ" and under ~2% "strongly" is normal; more means something is missing or out of paint order (`SAVE=1` writes both PNGs to `playtests/layer-diff/`).
+- `node scripts/perf.mjs [#/route …]` measures fps, main thread, paint and compositing per screen (options in the file header). Needs `npm run dev`.
 - In dev, `secrets.local.json` also pre-fills the Gemini key (stripped from builds).
 
 ## Architecture
@@ -45,11 +47,11 @@ Import directions: `ui → store → game / ai / art / content`. `net` is used b
   - `characters/<id>.json` (listed in story order by first appearance), `levels/NN-slug.json` (ordered by filename), `levels/chapters.json`.
   - `prompts/character.md` (shared character framework), `prompts/judge.md`, `prompts/personas/<id>.md`.
   - Each folder has a README with the schema.
-- **`src/art/`.** `kit.ts` (palettes per time of day, color math, seeded RNG, sky/sea/weather/light pieces), `scenes.ts` (registry + `renderScene`), `scenes/<id>.ts`, `character.ts` (rig: parametric face, 10 expressions, blink/talk/reaction), `wardrobe.ts` (body, hairstyles, outfits, accessories). Everything returns SVG strings; motion is CSS classes in `src/ui/styles/art.css`.
+- **`src/art/`.** `kit.ts` (palettes per time of day, color math, seeded RNG, sky/sea/weather/light pieces), `scenes.ts` (registry + `renderScene`), `scenes/<id>.ts`, `character.ts` (rig: parametric face, 10 expressions, blink/talk/reaction; while talking only a small mouth overlay redraws), `wardrobe.ts` (body, hairstyles, outfits, accessories). Everything returns SVG strings; motion is CSS classes in `src/ui/styles/art.css`. `layers.ts` turns a scene into what the game actually shows (see "Performance").
 - **`src/store/`.**
   - `storage.ts`: localStorage, every key prefixed `datingSim.` (all of dragonkyro.github.io shares one origin).
   - `saveStore`: the synced save (`Progress`), migration from the pre-prefix `dating-sim-save-v1` key, `onSaveChange` for cloud sync.
-  - `prefsStore`: device-only — Gemini key, model choice, text speed, motion, creativity.
+  - `prefsStore`: device-only — Gemini key, model choice, text speed, animation (`motion`: full / lite / off; the old `reduceMotion` checkbox migrates to off), creativity.
   - `runStore`: the scene in progress, saved after every step (device-only).
 - **`src/net/`.** `firebaseConfig.ts` (the "Dating Sim" web app), `cloud.ts` (lazy Firebase, Google sign-in by popup, whole-save reconcile on sign-in/start-up with a "which save?" prompt when both sides changed, debounced pushes).
 - **`src/ui/`.**
@@ -78,6 +80,17 @@ Objectives: `reach` (interest ≥ threshold), `ask` (the player makes the move: 
 - Free-tier daily caps (from Google's 429 quota details): `gemini-3.5-flash-lite` 500, `gemini-flash-lite-latest` 500 (separate bucket), `gemini-2.5-flash` 20, `gemini-3-flash-preview` 20. `FREE_TIER_CHAIN` leads with flash-lite; "Auto" parks models that 404/429/503/time out and waits out short per-minute limits once.
 - A scene costs ~2 calls per turn + 1 at the end.
 
+## Performance (measured Nov 2026)
+
+The v2 art lagged badly: CSS animations on elements *inside* an SVG can't be composited, so every frame repainted the whole full-screen scene (up to ~1 s of paint per second on a retina screen). What the game does instead:
+
+- **Layered scenes** (`src/art/layers.ts`, rendered by `SceneArt`): each scene is split once, off-screen, into a still image plus each animated piece lifted into its own small SVG in a `div` that carries the animation, so the compositor just moves it. To keep the paint order, static content painted over a moving piece goes into an overlay still above it ("bands", up to 4, each cropped to what it holds); past that, the pieces in the way stay still. Thumbnails use `stillSceneUrl`.
+- The layers are fitted with CSS **`zoom`, not `transform: scale()`**: under a scaled ancestor Chrome rasterizes `will-change` layers at full size and resamples them every frame (it doubled compositing cost).
+- **Animation setting**: Full; **Lite** (only small pieces move, all on one shared 12 fps clock via `stepAnimations`, figure doesn't breathe); Off (stills only). On the first scene on Full, `useMotionCheck` samples the frame rate once and switches to Lite below 40 fps, with a toast.
+- Without GPU acceleration (headless Chrome; likely some office PCs and remote desktops), drawing each frame is what costs. Chrome redraws the bounding box of everything that changed, so scattered small movers still redraw the whole screen: what matters is how many frames change, not how many pieces move. On that setup Full saturates the compositor (~22–34 fps), Lite runs at ~60 fps with it 15–40% busy.
+- No `backdrop-filter` (it re-blurred moving art every frame); time-of-day tints sit on the figure's SVGs, not on the moving wrapper.
+- Measuring: headless Chrome reports `prefers-reduced-motion: reduce`, which turns all motion off; `perf.mjs` and `layer-diff.mjs` emulate no-preference over CDP. Headless fps snaps between ~30 and ~60, so compare the ms/s columns.
+
 ## Data and Firebase (shared project)
 
 Project `github-games-e7c7d` is shared with Bridge Master, BlackJack, Poker and others.
@@ -95,6 +108,6 @@ To add or change content: edit the JSON/Markdown under `src/content/` (new files
 ## Conventions
 
 - Game logic stays pure and JSON-serializable (runs and saves are plain objects).
-- Art is code: extend the kit or wardrobe instead of adding images, so the style stays consistent. Attach animation classes to wrapper `<g>`s only (a CSS animation's transform replaces the element's `transform` attribute). Every animation has a reduced-motion fallback (`art.css`).
+- Art is code: extend the kit or wardrobe instead of adding images, so the style stays consistent. Attach animation classes to wrapper `<g>`s only (a CSS animation's transform replaces the element's `transform` attribute). Every animation has a reduced-motion fallback (`art.css`). After adding or moving animated pieces, run `scripts/layer-diff.mjs`.
 - Characters are referred to with she/her (all four love interests); the player's name and pronouns come from the save.
 - Don't commit or push unless asked. Pushing `main` deploys (`.github/workflows/deploy.yml`: tests, build, Pages).

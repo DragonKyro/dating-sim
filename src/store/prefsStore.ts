@@ -6,18 +6,29 @@ import type { Byok } from '@/ai/ai';
 import { readJson, writeJson } from './storage';
 
 export type TextSpeed = 'slow' | 'normal' | 'fast' | 'instant';
+/** full: everything moves · lite: only small details (for machines without fast graphics) · off: still. */
+export type Motion = 'full' | 'lite' | 'off';
 
 export interface Prefs extends Byok {
   textSpeed: TextSpeed;
-  reduceMotion: boolean;
+  motion: Motion;
+  /** The one-time frame-rate check on a first scene already ran. */
+  motionChecked: boolean;
   /** Character voice temperature. */
   temperature: number;
 }
 
 const KEY = 'prefs';
-const DEFAULTS: Prefs = { apiKey: '', voiceModel: 'auto', judgeModel: 'auto', textSpeed: 'normal', reduceMotion: false, temperature: 0.9 };
+const DEFAULTS: Prefs = { apiKey: '', voiceModel: 'auto', judgeModel: 'auto', textSpeed: 'normal', motion: 'full', motionChecked: false, temperature: 0.9 };
 
-export const usePrefs = create<Prefs>(() => ({ ...DEFAULTS, ...readJson<Partial<Prefs>>(KEY, {}) }));
+function load(): Prefs {
+  const stored = readJson<Partial<Prefs> & { reduceMotion?: boolean }>(KEY, {});
+  const { reduceMotion, ...rest } = stored;
+  // Older builds stored a reduce-motion checkbox.
+  return { ...DEFAULTS, ...(reduceMotion ? { motion: 'off' as const } : {}), ...rest };
+}
+
+export const usePrefs = create<Prefs>(() => load());
 
 export function setPrefs(patch: Partial<Prefs>): void {
   usePrefs.setState(patch);

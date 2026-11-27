@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Pronouns } from '@/game/types';
 import { PINNABLE_MODELS, validateKey } from '@/ai/llm';
 import { flushCloud, signIn, signOut, useCloud } from '@/net/cloud';
-import { setPrefs, usePrefs, type TextSpeed } from '@/store/prefsStore';
+import { setPrefs, usePrefs, type Motion, type TextSpeed } from '@/store/prefsStore';
 import { resetProgress, updateSave, useSave } from '@/store/saveStore';
 import { formatDate } from '../text';
 import { closeModal, confirmDialog, toast, useModal } from '../uiStore';
@@ -155,7 +155,7 @@ function SettingsPanel() {
   const [name, setName] = useState(player.name);
   const [pronouns, setPronouns] = useState<Pronouns>(player.pronouns);
   const [textSpeed, setTextSpeed] = useState<TextSpeed>(prefs.textSpeed);
-  const [reduceMotion, setReduceMotion] = useState(prefs.reduceMotion);
+  const [motion, setMotion] = useState<Motion>(prefs.motion);
   const [temperature, setTemperature] = useState(prefs.temperature);
   const [voiceModel, setVoiceModel] = useState(prefs.voiceModel);
   const [judgeModel, setJudgeModel] = useState(prefs.judgeModel);
@@ -169,7 +169,8 @@ function SettingsPanel() {
 
   const save = () => {
     if (name.trim() !== player.name || pronouns !== player.pronouns) updateSave((p) => { p.player = { name: name.trim(), pronouns }; });
-    setPrefs({ textSpeed, reduceMotion, temperature, voiceModel, judgeModel });
+    // A level picked by hand is never overridden by the frame-rate check.
+    setPrefs({ textSpeed, motion, temperature, voiceModel, judgeModel, ...(motion !== prefs.motion ? { motionChecked: true } : {}) });
     closeModal(true);
   };
   const reset = async () => {
@@ -205,10 +206,15 @@ function SettingsPanel() {
         <label>Pronouns</label>
         <PronounPicker value={pronouns} onChange={setPronouns} />
       </div>
-      <label className="toggle">
-        <input type="checkbox" checked={reduceMotion} onChange={(e) => setReduceMotion(e.target.checked)} />
-        Reduce motion (stops ambient animation)
-      </label>
+      <div className="field">
+        <label>Animation</label>
+        <div className="seg">
+          {([['full', 'Full'], ['lite', 'Lite'], ['off', 'Off']] as const).map(([v, label]) => (
+            <button key={v} type="button" className={motion === v ? 'on' : ''} onClick={() => setMotion(v)}>{label}</button>
+          ))}
+        </div>
+        <div className="hint">Lite keeps the small details moving (gulls, flames, lanterns) — smoother on computers without fast graphics.</div>
+      </div>
 
       <h3 ref={cloudRef}>Cloud saves</h3>
       <CloudSection />

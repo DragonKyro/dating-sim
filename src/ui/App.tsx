@@ -13,13 +13,15 @@ import { openModal, useRetry } from './uiStore';
 
 export function App() {
   const route = useRoute();
-  const reduceMotion = usePrefs((p) => p.reduceMotion);
+  const motion = usePrefs((p) => p.motion);
   const retry = useRetry((s) => s.nonce);
   const notice = useSave((s) => s.notices.includes('v2-new-story'));
 
   useEffect(() => {
-    document.documentElement.classList.toggle('reduce-motion', reduceMotion);
-  }, [reduceMotion]);
+    // 'reduce-motion' stops all art animation (art.css); 'motion-lite' trims it.
+    document.documentElement.classList.toggle('reduce-motion', motion === 'off');
+    document.documentElement.classList.toggle('motion-lite', motion === 'lite');
+  }, [motion]);
 
   // One-time message for players whose v1 save was cleared.
   useEffect(() => {

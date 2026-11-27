@@ -5,6 +5,7 @@ import { useSave } from '@/store/saveStore';
 import { HeartMeter, RichLine, SceneArt } from '../shared/controls';
 import { Sprite } from '../scene/Sprite';
 import { Typewriter } from '../scene/Typewriter';
+import { useMotionCheck } from '../scene/motionCheck';
 import { MAX_INPUT, useScene, type SceneController } from '../scene/useScene';
 import { go, paths } from '../router';
 import { capitalize } from '../text';
@@ -23,6 +24,7 @@ function Scene({ s }: { s: SceneController }) {
   const { level, character, run } = s;
   const o = level.objective;
   const speed = usePrefs((p) => p.textSpeed);
+  useMotionCheck();
   const log = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   // Braces matter: Chrome's scrollTo() now returns a Promise, and an effect
